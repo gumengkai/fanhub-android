@@ -32,9 +32,17 @@ jobs:
       
     - name: 使用 Gradle 构建 Debug 版本
       env:
-        GRADLE_OPTS: "-Xmx2g -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2g -XX:+HeapDumpOnOutOfMemoryError"
+        GRADLE_OPTS: "-Xmx3g -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g"
       run: |
-        gradle assembleDebug --stacktrace --info || gradle assembleDebug --stacktrace
+        echo "=== 开始构建 ==="
+        gradle assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+        BUILD_EXIT=$?
+        echo "=== 构建退出码：$BUILD_EXIT ==="
+        if [ $BUILD_EXIT -ne 0 ]; then
+          echo "=== 构建失败，显示错误摘要 ==="
+          grep -i "error\|failed\|exception" build.log | tail -50
+          exit $BUILD_EXIT
+        fi
       
     - name: 上传 APK 文件
       uses: actions/upload-artifact@v4
