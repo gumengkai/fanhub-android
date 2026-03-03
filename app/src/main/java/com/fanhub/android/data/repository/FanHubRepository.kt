@@ -72,13 +72,9 @@ class FanHubRepository @Inject constructor(
         }
     }
     
-    fun getVideoStreamUrl(videoId: Int): String {
-        return apiService.getVideoStreamUrl(videoId)
-    }
-    
-    fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String {
-        return apiService.getVideoThumbnailUrl(videoId, thumbnailPath)
-    }
+    // 视频流 URL 在运行时拼接
+    // fun getVideoStreamUrl(videoId: Int): String
+    // fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String
     
     suspend fun updateWatchHistory(videoId: Int, progress: Float, isCompleted: Boolean): Result<Unit> {
         return try {
@@ -158,13 +154,9 @@ class FanHubRepository @Inject constructor(
         }
     }
     
-    fun getImageFileUrl(imageId: Int): String {
-        return apiService.getImageFileUrl(imageId)
-    }
-    
-    fun getImageThumbnailUrl(imageId: Int, thumbnailPath: String?): String {
-        return apiService.getImageThumbnailUrl(imageId, thumbnailPath)
-    }
+    // 图片 URL 在运行时拼接
+    // fun getImageFileUrl(imageId: Int): String
+    // fun getImageThumbnailUrl(imageId: Int, thumbnailPath: String?): String
     
     // ========== 标签相关 ==========
     

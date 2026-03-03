@@ -43,15 +43,9 @@ interface ApiService {
     @POST("videos/{id}/favorite")
     suspend fun toggleVideoFavorite(@Path("id") videoId: Int): Response<Unit>
     
-    /**
-     * 获取视频流 URL (直接拼接 baseURL)
-     */
-    fun getVideoStreamUrl(videoId: Int): String
-    
-    /**
-     * 获取视频缩略图 URL
-     */
-    fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String
+    // 注意：视频流和缩略图 URL 在 Repository 中拼接
+    // fun getVideoStreamUrl(videoId: Int): String
+    // fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String
     
     /**
      * 更新观看历史
@@ -104,15 +98,9 @@ interface ApiService {
     @POST("images/{id}/favorite")
     suspend fun toggleImageFavorite(@Path("id") imageId: Int): Response<Unit>
     
-    /**
-     * 获取图片文件 URL
-     */
-    fun getImageFileUrl(imageId: Int): String
-    
-    /**
-     * 获取图片缩略图 URL
-     */
-    fun getImageThumbnailUrl(imageId: Int, thumbnailPath: String?): String
+    // 注意：图片 URL 在 Repository 中拼接
+    // fun getImageFileUrl(imageId: Int): String
+    // fun getImageThumbnailUrl(imageId: Int, thumbnailPath: String?): String
     
     // ========== 标签 API ==========
     
