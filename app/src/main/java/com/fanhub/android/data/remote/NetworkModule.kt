@@ -6,12 +6,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.fanhub.android.BuildConfig
+import com.fanhub.android.data.local.PreferencesKeys
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -20,9 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-// DataStore
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-val API_URL_KEY = stringPreferencesKey("api_url")
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -63,16 +64,25 @@ object NetworkModule {
     
     @Provides
     @Singleton
+    fun provideBaseUrl(@ApplicationContext context: Context): String {
+        return runBlocking {
+            try {
+                context.dataStore.data.first()[PreferencesKeys.API_URL]
+                    ?.takeIf { it.isNotEmpty() }
+                    ?: BuildConfig.DEFAULT_API_URL
+            } catch (e: Exception) {
+                BuildConfig.DEFAULT_API_URL
+            }
+        }
+    }
+    
+    @Provides
+    @Singleton
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        gsonBuilder: GsonBuilder
+        gsonBuilder: GsonBuilder,
+        baseUrl: String
     ): Retrofit {
-        val baseUrl = if (BuildConfig.API_URL.isNotEmpty()) {
-            BuildConfig.API_URL
-        } else {
-            BuildConfig.DEFAULT_API_URL
-        }
-        
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
