@@ -35,12 +35,13 @@ jobs:
         GRADLE_OPTS: "-Xmx3g -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g"
       run: |
         echo "=== 开始构建 ==="
+        set -o pipefail
         gradle assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
-        BUILD_EXIT=$?
+        BUILD_EXIT=${PIPESTATUS[0]}
         echo "=== 构建退出码：$BUILD_EXIT ==="
         if [ $BUILD_EXIT -ne 0 ]; then
           echo "=== 构建失败，显示错误摘要 ==="
-          grep -i "error\|failed\|exception" build.log | tail -50
+          grep -i "error\|failed\|exception" build.log | head -100
           exit $BUILD_EXIT
         fi
         echo "=== 构建成功，检查 APK 文件 ==="
