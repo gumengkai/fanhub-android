@@ -1,0 +1,32 @@
+# Ensure Gradle wrapper scripts use Unix line endings
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+
+# Kotlin files
+*.kt text
+*.kts text
+
+# Java files
+*.java text
+
+# Gradle files
+*.gradle text
+*.gradle.kts text
+*.properties text
+
+# Shell scripts
+*.sh text eol=lf
+
+# XML and resources
+*.xml text
+*.yaml text
+*.yml text
+
+# Binary files
+*.apk binary
+*.jar binary
+*.so binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
