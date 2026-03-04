@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Copyright © 2015-2021 the original authors.
@@ -164,7 +164,7 @@ fi
 
 eval "set -- $(
         # Most arguments are given in double-quoted form.
-        echo "$GRADLE_OPTS $JAVA_OPTS" | xargs -n1 |
+        xargs -n1 <<<"$GRADLE_OPTS $JAVA_OPTS" |
         sed -e "s/'/\\\\'/g" -e "1h" -e "1!H" -e '${g;s/\n/ /g;s/$/ /;s/ /\\ /g}' -e 'x' -e 'y/\n/ /' |
         tr '\n' ' '
     ) \"$@\""

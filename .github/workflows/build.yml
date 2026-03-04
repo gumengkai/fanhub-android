@@ -26,7 +26,8 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
       
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --no-daemon --stacktrace
+      shell: bash
+      run: bash ./gradlew assembleDebug
       
     - name: Verify APK exists
       run: |
