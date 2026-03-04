@@ -22,6 +22,7 @@ import coil.compose.AsyncImage
 import com.fanhub.android.data.model.Video
 import com.fanhub.android.data.repository.FanHubRepository
 import com.fanhub.android.data.repository.Result
+import com.fanhub.android.ui.components.BottomNavigationBar
 import com.fanhub.android.ui.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +32,7 @@ fun HomeScreen(
     onNavigateToImages: () -> Unit,
     onNavigateToShortVideo: () -> Unit,
     onNavigateToFavorites: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -258,7 +260,6 @@ private fun DurationBadge(duration: Long) {
     val seconds = duration % 60
     Box(
         modifier = Modifier
-            .align(Alignment.BottomEnd)
             .padding(4.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(Color.Black.copy(alpha = 0.7f))

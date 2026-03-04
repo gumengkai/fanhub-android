@@ -3,6 +3,7 @@ package com.fanhub.android.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fanhub.android.data.model.Video
+import com.fanhub.android.data.model.VideoListResponse
 import com.fanhub.android.data.repository.FanHubRepository
 import com.fanhub.android.data.repository.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,31 +45,26 @@ class VideoLibraryViewModel @Inject constructor(
                         videos = Result.Error(e.message ?: "Unknown error")
                     )
                 }
-                .collect { videoList ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        videos = Result.Success(videoList)
-                    )
-                }
-        }
-    }
-
-    fun searchVideos(query: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            repository.searchVideos(query)
-                .catch { e ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = e.message,
-                        videos = Result.Error(e.message ?: "Unknown error")
-                    )
-                }
-                .collect { videoList ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        videos = Result.Success(videoList)
-                    )
+                .collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val videoList = result.data.items
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                videos = Result.Success(videoList)
+                            )
+                        }
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                error = result.message,
+                                videos = result
+                            )
+                        }
+                        is Result.Loading -> {
+                            _uiState.value = _uiState.value.copy(isLoading = true)
+                        }
+                    }
                 }
         }
     }

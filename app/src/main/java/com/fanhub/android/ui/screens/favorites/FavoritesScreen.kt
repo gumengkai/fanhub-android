@@ -173,6 +173,7 @@ private fun StatItem(label: String, value: Int) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SegmentedButton(
     selectedType: FavoriteType?,

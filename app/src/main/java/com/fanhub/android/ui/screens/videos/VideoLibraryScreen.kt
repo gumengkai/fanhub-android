@@ -94,7 +94,7 @@ fun VideoLibraryScreen(
                     }
                 }
                 is Result.Success -> {
-                    if (state.data.items.isEmpty()) {
+                    if (state.data.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -108,7 +108,7 @@ fun VideoLibraryScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(state.data.items) { video ->
+                            items(state.data) { video ->
                                 VideoCard(
                                     video = video,
                                     onClick = { onVideoClick(video.id) }
@@ -198,7 +198,6 @@ private fun DurationBadge(duration: Long) {
     val seconds = duration % 60
     Box(
         modifier = Modifier
-            .align(Alignment.BottomEnd)
             .padding(4.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(Color.Black.copy(alpha = 0.7f))

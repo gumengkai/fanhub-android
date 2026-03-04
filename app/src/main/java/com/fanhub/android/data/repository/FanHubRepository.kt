@@ -2,6 +2,8 @@ package com.fanhub.android.data.repository
 
 import com.fanhub.android.data.model.*
 import com.fanhub.android.data.remote.ApiService
+import com.fanhub.android.data.remote.WatchHistoryRequest
+import com.fanhub.android.data.remote.WatchHistoryListResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -72,9 +74,14 @@ class FanHubRepository @Inject constructor(
         }
     }
     
-    // 视频流 URL 在运行时拼接
-    // fun getVideoStreamUrl(videoId: Int): String
-    // fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String
+    // 视频流 URL 拼接
+    fun getVideoStreamUrl(videoId: Int): String {
+        return "/api/videos/$videoId/stream"
+    }
+    
+    fun getVideoThumbnailUrl(videoId: Int, thumbnailPath: String?): String {
+        return thumbnailPath ?: "/api/videos/$videoId/thumbnail"
+    }
     
     suspend fun updateWatchHistory(videoId: Int, progress: Float, isCompleted: Boolean): Result<Unit> {
         return try {
