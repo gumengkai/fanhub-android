@@ -18,7 +18,6 @@ fun BottomNavigationBar(
     NavigationBar {
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.VideoLibrary, contentDescription = "视频库") },
-            selectedIcon = { Icon(Icons.Filled.VideoLibrary, contentDescription = "视频库") },
             label = { Text("视频") },
             selected = false,
             onClick = onNavigateToVideos
@@ -26,7 +25,6 @@ fun BottomNavigationBar(
         
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Image, contentDescription = "图片库") },
-            selectedIcon = { Icon(Icons.Filled.Image, contentDescription = "图片库") },
             label = { Text("图片") },
             selected = false,
             onClick = onNavigateToImages
@@ -34,7 +32,6 @@ fun BottomNavigationBar(
         
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.PlayCircle, contentDescription = "短视频") },
-            selectedIcon = { Icon(Icons.Filled.PlayCircle, contentDescription = "短视频") },
             label = { Text("短视频") },
             selected = false,
             onClick = onNavigateToShortVideo
@@ -42,7 +39,6 @@ fun BottomNavigationBar(
         
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.Favorite, contentDescription = "收藏") },
-            selectedIcon = { Icon(Icons.Filled.Favorite, contentDescription = "收藏") },
             label = { Text("收藏") },
             selected = false,
             onClick = onNavigateToFavorites

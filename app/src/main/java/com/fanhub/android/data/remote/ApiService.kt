@@ -1,6 +1,7 @@
 package com.fanhub.android.data.remote
 
 import com.fanhub.android.data.model.*
+import com.google.gson.annotations.SerializedName
 import retrofit2.Response
 import retrofit2.http.*
 

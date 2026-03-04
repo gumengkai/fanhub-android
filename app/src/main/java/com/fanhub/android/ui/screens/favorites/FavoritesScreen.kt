@@ -63,7 +63,8 @@ fun FavoritesScreen(
                 .padding(paddingValues)
         ) {
             // 统计信息
-            uiState.stats?.let { stats ->
+            val stats = (uiState.stats as? com.fanhub.android.data.repository.Result.Success)?.data
+            stats?.let { favoriteStats ->
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,9 +78,9 @@ fun FavoritesScreen(
                             .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        StatItem("全部", stats.total)
-                        StatItem("视频", stats.totalVideos)
-                        StatItem("图片", stats.totalImages)
+                        StatItem("全部", favoriteStats.total)
+                        StatItem("视频", favoriteStats.totalVideos)
+                        StatItem("图片", favoriteStats.totalImages)
                     }
                 }
             }
