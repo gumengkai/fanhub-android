@@ -164,7 +164,7 @@ fi
 
 eval "set -- $(
         # Most arguments are given in double-quoted form.
-        xargs -n1 <<<"$GRADLE_OPTS $JAVA_OPTS" |
+        echo "$GRADLE_OPTS $JAVA_OPTS" | xargs -n1 |
         sed -e "s/'/\\\\'/g" -e "1h" -e "1!H" -e '${g;s/\n/ /g;s/$/ /;s/ /\\ /g}' -e 'x' -e 'y/\n/ /' |
         tr '\n' ' '
     ) \"$@\""
