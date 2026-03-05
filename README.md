@@ -1,6 +1,13 @@
 # FanHub Android
 
-FanHub 的 Android 客户端，采用最新的 Android 开发规范。
+FanHub 的 Android 客户端，采用最新的 Android 开发规范，基于 Jetpack Compose 和 Material Design 3 构建。
+
+[![Android Build](https://github.com/your-username/fanhub-android/actions/workflows/build.yml/badge.svg)](https://github.com/your-username/fanhub-android/actions/workflows/build.yml)
+[![API](https://img.shields.io/badge/API-26%2B-brightgreen.svg)](https://android-arsenal.com/api?level=26)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-purple.svg)](https://kotlinlang.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
 
 ## 📱 功能特性
 
@@ -9,55 +16,72 @@ FanHub 的 Android 客户端，采用最新的 Android 开发规范。
 - 📱 **短视频** - 抖音风格沉浸式播放
 - 💗 **收藏** - 统一管理视频和图片收藏
 - ⚙️ **设置** - 灵活配置后端地址
+- 🎨 **Material 3** - 遵循最新 Material Design 3 设计规范
+- 🌙 **深色模式** - 自动适配系统深色模式
+
+---
 
 ## 🏗️ 技术栈
 
-- **语言**: Kotlin
+### 核心架构
+- **语言**: Kotlin 1.9.22
+- **最低 API**: 26 (Android 8.0)
+- **目标 API**: 34 (Android 14)
+- **架构模式**: MVVM + Clean Architecture
+
+### UI 框架
 - **UI**: Jetpack Compose (Material 3)
-- **架构**: MVVM + Clean Architecture
-- **依赖注入**: Hilt
-- **网络**: Retrofit + OkHttp
-- **图片加载**: Coil
-- **视频播放**: ExoPlayer (Media3)
 - **导航**: Navigation Compose
+- **主题**: 自定义 Bilibili 粉色主题
 
-## 🚀 在线编译
+### 依赖注入
+- **框架**: Hilt 2.50
+- **KSP**: Kotlin Symbol Processing
 
-### 方式一：GitHub Actions（推荐）
+### 网络与数据
+- **网络**: Retrofit 2 + OkHttp 4
+- **JSON**: Gson
+- **图片加载**: Coil 2.5
+- **本地存储**: DataStore Preferences
 
-1. 将本项目推送到 GitHub
-2. 进入 **Actions** 标签页
-3. 点击左侧 **Android Build**
-4. 点击 **Run workflow** 按钮
-5. 等待编译完成（约 5-10 分钟）
-6. 在 **Artifacts** 部分下载 APK 文件
+### 媒体播放
+- **视频播放**: ExoPlayer (Media3) 1.2.0
 
-### 方式二：手动触发
+### 异步处理
+- **协程**: Kotlinx Coroutines 1.7.3
+- **Flow**: StateFlow + SharedFlow
 
+---
+
+## 🚀 快速开始
+
+### 环境要求
+- Android Studio Hedgehog (2023.1.1) 或更高版本
+- JDK 17
+- Android SDK 34
+
+### 编译步骤
+
+1. **克隆项目**
 ```bash
-# 推送到 GitHub
-git add .
-git commit -m "更新代码"
-git push origin main
-
-# 或者创建标签触发 Release 构建
-git tag v1.0.0
-git push origin v1.0.0
+git clone https://github.com/your-username/fanhub-android.git
+cd fanhub-android
 ```
 
-## ⚙️ 配置后端地址
+2. **配置后端地址**
 
-### 方法 1：修改默认地址
-
-编辑 `app/build.gradle.kts`：
-
+编辑 `app/build.gradle.kts`，修改 `DEFAULT_API_URL`：
 ```kotlin
 buildConfigField("String", "DEFAULT_API_URL", "\"http://你的服务器地址:8080/api\"")
 ```
 
-### 方法 2：运行时配置
+3. **同步 Gradle**
+在 Android Studio 中点击 "Sync Project with Gradle Files"
 
-在 App 的设置页面中配置后端地址（开发中）。
+4. **运行应用**
+选择设备或模拟器，点击 Run 按钮
+
+---
 
 ## 📦 项目结构
 
@@ -66,21 +90,22 @@ app/
 ├── src/main/
 │   ├── java/com/fanhub/android/
 │   │   ├── data/
+│   │   │   ├── local/          # 本地数据源 (DataStore)
 │   │   │   ├── model/          # 数据模型
-│   │   │   ├── remote/         # API 接口
-│   │   │   ├── local/          # 本地存储
-│   │   │   └── repository/     # 数据仓库
-│   │   ├── domain/
-│   │   │   ├── model/          # 领域模型
-│   │   │   ├── repository/     # 仓库接口
-│   │   │   └── usecase/        # 用例
+│   │   │   ├── remote/         # 远程数据源 (Retrofit)
+│   │   │   └── repository/     # 数据仓库实现
+│   │   ├── di/                 # Hilt 依赖注入模块
 │   │   ├── ui/
-│   │   │   ├── screens/        # 页面
-│   │   │   ├── components/     # 组件
-│   │   │   ├── theme/          # 主题
-│   │   │   ├── viewmodel/      # ViewModel
-│   │   │   └── navigation/     # 导航
-│   │   ├── di/                 # 依赖注入
+│   │   │   ├── components/     # 可复用 Compose 组件
+│   │   │   ├── navigation/     # 导航配置
+│   │   │   ├── screens/        # 页面屏幕
+│   │   │   │   ├── home/
+│   │   │   │   ├── videos/
+│   │   │   │   ├── images/
+│   │   │   │   ├── favorites/
+│   │   │   │   └── settings/
+│   │   │   ├── theme/          # Material 主题配置
+│   │   │   └── viewmodel/      # ViewModel
 │   │   ├── FanHubApplication.kt
 │   │   └── MainActivity.kt
 │   ├── res/
@@ -92,34 +117,134 @@ app/
 └── proguard-rules.pro
 ```
 
-## 🔑 API 接口
+---
+
+## 🔧 构建配置
+
+### Gradle 版本
+```properties
+# gradle/wrapper/gradle-wrapper.properties
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-bin.zip
+```
+
+### Android 配置
+```kotlin
+android {
+    namespace = "com.fanhub.android"
+    compileSdk = 34
+    
+    defaultConfig {
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+    
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+```
+
+---
+
+## 🎨 主题定制
+
+FanHub 使用自定义的 Bilibili 粉色主题：
+
+```kotlin
+// 主题色
+private val Pink = Color(0xFFFB7299)
+private val PinkVariant = Color(0xFFE05A7D)
+private val DarkPink = Color(0xFFD44D6E)
+
+// 支持动态颜色 (Android 12+)
+// 支持深色模式自动切换
+```
+
+---
+
+## 🔌 API 接口
 
 完整 API 请参考后端服务：
 
-| 功能 | 端点 |
-|------|------|
-| 视频列表 | `GET /api/videos` |
-| 视频详情 | `GET /api/videos/{id}` |
-| 视频播放 | `GET /api/videos/{id}/stream` |
-| 图片列表 | `GET /api/images` |
-| 图片文件 | `GET /api/images/{id}/file` |
-| 收藏管理 | `POST /api/videos|images/{id}/favorite` |
-| 标签管理 | `GET /api/tags` |
+| 功能 | 端点 | 方法 |
+|------|------|------|
+| 视频列表 | `/api/videos` | GET |
+| 视频详情 | `/api/videos/{id}` | GET |
+| 视频播放 | `/api/videos/{id}/stream` | GET |
+| 切换收藏 | `/api/videos/{id}/favorite` | POST |
+| 图片列表 | `/api/images` | GET |
+| 图片文件 | `/api/images/{id}/file` | GET |
+| 标签管理 | `/api/tags` | GET |
+
+---
 
 ## 📝 开发进度
 
 - [x] 项目基础架构
+- [x] Gradle 配置优化
 - [x] 数据层（Model + API + Repository）
-- [x] 主题配置
+- [x] Hilt 依赖注入
+- [x] 主题配置（Material 3）
 - [x] 主屏幕
-- [x] 视频库页面
-- [x] GitHub Actions 配置
-- [ ] 视频播放器
-- [ ] 图片库页面
-- [ ] 短视频页面
-- [ ] 收藏页面
+- [x] 导航系统
+- [x] GitHub Actions CI/CD
+- [ ] 视频播放器完整实现
+- [ ] 图片库页面完整实现
+- [ ] 短视频页面完整实现
+- [ ] 收藏页面完整实现
 - [ ] 设置页面（后端地址配置）
+- [ ] 单元测试
+- [ ] UI 测试
+
+---
+
+## 🤝 贡献指南
+
+欢迎贡献代码、报告问题或提出建议！
+
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+---
 
 ## 📄 许可证
 
-MIT License
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+---
+
+## 🙏 致谢
+
+- [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- [Material Design 3](https://m3.material.io/)
+- [Hilt](https://dagger.dev/hilt/)
+- [Retrofit](https://square.github.io/retrofit/)
+- [Coil](https://coil-kt.github.io/coil/)
+- [ExoPlayer](https://exoplayer.dev/)
+
+---
+
+<div align="center">
+
+**FanHub Android** - 让媒体管理更简单
+
+⭐ 如果这个项目对你有帮助，请给个 Star！
+
+</div>

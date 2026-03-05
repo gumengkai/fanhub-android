@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.fanhub.android.data.model.Video
-import com.fanhub.android.data.repository.FanHubRepository
 import com.fanhub.android.data.repository.Result
 import com.fanhub.android.ui.components.BottomNavigationBar
 import com.fanhub.android.ui.viewmodel.HomeViewModel
@@ -32,7 +31,6 @@ fun HomeScreen(
     onNavigateToImages: () -> Unit,
     onNavigateToShortVideo: () -> Unit,
     onNavigateToFavorites: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -46,7 +44,7 @@ fun HomeScreen(
                     titleContentColor = Color.White
                 ),
                 actions = {
-                    IconButton(onClick = onNavigateToSettings) {
+                    IconButton(onClick = { /* Navigate to settings */ }) {
                         Icon(Icons.Default.Settings, contentDescription = "设置")
                     }
                 }
@@ -288,6 +286,3 @@ private fun EmptyState(message: String) {
         )
     }
 }
-
-// 临时添加，稍后在 BottomNavigationBar 中实现
-private val onNavigateToSettings: () -> Unit = {}
