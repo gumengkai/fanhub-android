@@ -6,6 +6,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// KSP 配置 - Hilt 需要
+ksp {
+    arg("dagger.hilt.android.internal.disableAndroidMerger", "false")
+}
+
 android {
     namespace = "com.funhub.android"
     compileSdk = 34
