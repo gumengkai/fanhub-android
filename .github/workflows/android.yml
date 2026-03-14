@@ -25,21 +25,14 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace --no-daemon
-
-    - name: Show APK location
-      run: |
-        echo "=== Looking for APK files ==="
-        find . -name "*.apk" -type f || echo "No APK found"
-        ls -la app/build/outputs/apk/debug/ || echo "Debug dir not found"
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: funhub-android-debug
-        path: app/build/outputs/apk/debug/*.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
-        if-no-files-found: error
 
   release:
     needs: build
