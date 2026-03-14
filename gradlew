@@ -154,7 +154,7 @@ if "$cygwin" || "$msys" ; then
 fi
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
+DEFAULT_JVM_OPTS="-Xmx2048m"
 
 # Collect all arguments for the java command;
 #   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
