@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FunHub</string>
+    
+    <!-- 导航 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_videos">视频</string>
+    <string name="nav_images">图片</string>
+    <string name="nav_settings">设置</string>
+    
+    <!-- 首页 -->
+    <string name="home_short_video">短视频</string>
+    <string name="home_short_video_desc">沉浸式观看体验</string>
+    <string name="home_quick_access">快速访问</string>
+    <string name="home_video_library">视频库</string>
+    <string name="home_video_library_desc">浏览所有视频</string>
+    <string name="home_image_library">图片库</string>
+    <string name="home_image_library_desc">浏览所有图片</string>
+    <string name="home_favorites">收藏</string>
+    <string name="home_favorites_desc">查看收藏内容</string>
+    <string name="home_history">历史</string>
+    <string name="home_history_desc">观看历史记录</string>
+    <string name="home_recent_playback">最近播放</string>
+    <string name="home_no_recent">暂无播放记录</string>
+    
+    <!-- 视频库 -->
+    <string name="video_library_title">视频库</string>
+    <string name="video_search_hint">搜索视频</string>
+    <string name="video_no_videos">暂无视频</string>
+    
+    <!-- 图片库 -->
+    <string name="image_library_title">图片库</string>
+    <string name="image_search_hint">搜索图片</string>
+    <string name="image_no_images">暂无图片</string>
+    
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_server">服务器设置</string>
+    <string name="settings_api_url">后端 API 地址</string>
+    <string name="settings_api_url_hint">例如：http://192.168.1.100:5000/api</string>
+    <string name="settings_reset">重置</string>
+    <string name="settings_save">保存</string>
+    <string name="settings_emulator_hint">提示：Android 模拟器使用 http://10.0.2.2:5000/api 访问本地主机</string>
+    <string name="settings_playback">播放设置</string>
+    <string name="settings_auto_play">自动播放</string>
+    <string name="settings_auto_play_desc">进入视频后自动开始播放</string>
+    <string name="settings_appearance">外观设置</string>
+    <string name="settings_dark_mode">深色模式</string>
+    <string name="settings_dark_mode_desc">使用深色主题</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_version">版本</string>
+    <string name="settings_description">让本地媒体管理更有趣</string>
+    
+    <!-- 通用 -->
+    <string name="common_back">返回</string>
+    <string name="common_search">搜索</string>
+    <string name="common_favorite">收藏</string>
+    <string name="common_unfavorite">取消收藏</string>
+    <string name="common_loading">加载中…</string>
+    <string name="common_error">发生错误</string>
+    <string name="common_retry">重试</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_confirm">确认</string>
+    <string name="common_delete">删除</string>
+    <string name="common_edit">编辑</string>
+</resources>

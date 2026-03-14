@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色调 -->
+    <color name="funhub_pink">#FB7299</color>
+    <color name="funhub_pink_light">#FFE0E9</color>
+    <color name="funhub_pink_dark">#C4496D</color>
+    
+    <!-- 浅色主题 -->
+    <color name="light_background">#FAFAFA</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_on_background">#1A1A1A</color>
+    <color name="light_on_surface">#1A1A1A</color>
+    
+    <!-- 深色主题 -->
+    <color name="dark_background">#0A0A0F</color>
+    <color name="dark_surface">#1A1A2E</color>
+    <color name="dark_on_background">#EAEAEA</color>
+    <color name="dark_on_surface">#EAEAEA</color>
+    
+    <!-- 功能色 -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+    <color name="error">#F44336</color>
+    <color name="info">#2196F3</color>
+</resources>
