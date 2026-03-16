@@ -1,0 +1,37 @@
+name: Simple Build
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - run: echo "Starting build..."
+      
+      - run: ls -la
+      
+      - run: ls -la gradle/wrapper/
+      
+      - run: chmod +x gradlew
+      
+      - run: ./gradlew --version
+      
+      - run: ./gradlew tasks --all
+      
+      - run: ./gradlew assembleDebug
+      
+      - run: ls -la app/build/outputs/apk/debug/
+      
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
