@@ -1,0 +1,75 @@
+name: Android Build
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Debug Environment
+        run: |
+          echo "=== Environment ==="
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          echo "PATH: $PATH"
+          echo ""
+          echo "=== Project Files ==="
+          ls -la
+          echo ""
+          echo "=== Gradle Files ==="
+          ls -la gradle/wrapper/
+          file gradle/wrapper/gradle-wrapper.jar
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Run Gradle Build
+        run: |
+          set -x  # Enable debug output
+          ./gradlew --version
+          echo ""
+          echo "=== Starting Build ==="
+          ./gradlew assembleDebug --info --stacktrace
+        env:
+          CI: true
+
+      - name: Find APK
+        run: |
+          echo "=== Finding APK files ==="
+          find . -name "*.apk" -type f 2>/dev/null | head -20
+          echo ""
+          echo "=== Build outputs ==="
+          ls -la app/build/outputs/ 2>/dev/null || echo "No outputs"
+          echo ""
+          echo "=== APK directory ==="
+          ls -la app/build/outputs/apk/ 2>/dev/null || echo "No APK dir"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
