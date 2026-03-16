@@ -25,14 +25,30 @@ jobs:
         with:
           arguments: assembleDebug
       
-      - name: Check outputs
+      - name: Check all outputs
         run: |
-          ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "No debug APK"
-          find app/build -name "*.apk" 2>/dev/null
+          echo "=== Current directory ==="
+          pwd
+          ls -la
+          echo ""
+          echo "=== App directory ==="
+          ls -la app/ 2>/dev/null || echo "No app directory"
+          echo ""
+          echo "=== Build directory ==="
+          ls -la app/build/ 2>/dev/null || echo "No build directory"
+          echo ""
+          echo "=== All APK files ==="
+          find . -name "*.apk" -type f 2>/dev/null
+          echo ""
+          echo "=== Full build tree ==="
+          find app/build -type f 2>/dev/null | head -50
       
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gradle-action-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: |
+            app/build/outputs/apk/**/*.apk
+            **/*.apk
           if-no-files-found: warn
