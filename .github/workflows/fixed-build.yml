@@ -34,37 +34,36 @@ jobs:
           chmod +x gradlew
           ./gradlew --version
           ./gradlew clean assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+          echo "BUILD_EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
       
-      - name: Debug - Check all files
+      - name: Debug - Check build outputs
         run: |
-          mkdir -p ./debug-output
-          echo "=== Current directory ===" | tee ./debug-output/debug.log
-          pwd | tee -a ./debug-output/debug.log
-          ls -la | tee -a ./debug-output/debug.log
+          echo "::group::Build Directory Structure"
+          ls -laR app/build/ 2>/dev/null || echo "No build directory"
+          echo "::endgroup::"
           
-          echo "" | tee -a ./debug-output/debug.log
-          echo "=== App directory ===" | tee -a ./debug-output/debug.log
-          ls -la app/ | tee -a ./debug-output/debug.log
+          echo "::group::APK Search Results"
+          echo "Searching for APK files..."
+          find . -name "*.apk" -type f 2>/dev/null
+          echo "::endgroup::"
           
-          echo "" | tee -a ./debug-output/debug.log
-          echo "=== Build directory ===" | tee -a ./debug-output/debug.log
-          ls -laR app/build/ 2>/dev/null | tee -a ./debug-output/debug.log || echo "No build directory" | tee -a ./debug-output/debug.log
+          echo "::group::Outputs Directory"
+          ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+          echo "::endgroup::"
           
-          echo "" | tee -a ./debug-output/debug.log
-          echo "=== All APK files ===" | tee -a ./debug-output/debug.log
-          find . -name "*.apk" -type f 2>/dev/null | tee -a ./debug-output/debug.log || echo "No APK files" | tee -a ./debug-output/debug.log
+          # Create output directory and copy APKs
+          mkdir -p ./output
+          find . -name "*.apk" -type f -exec cp -v {} ./output/ \; 2>/dev/null || echo "No APK files to copy"
           
-          # Copy any found APKs
-          find . -name "*.apk" -type f -exec cp {} ./debug-output/ \; 2>/dev/null || true
-          ls -la ./debug-output/ | tee -a ./debug-output/debug.log
-          
-          # Copy build log
-          cp build.log ./debug-output/ 2>/dev/null || true
+          echo "::group::Output Directory Contents"
+          ls -la ./output/
+          echo "::endgroup::"
       
-      - name: Upload Debug Info
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: debug-info
-          path: ./debug-output/
-          retention-days: 5
+          name: fanhub-apk
+          path: ./output/*.apk
+          retention-days: 30
+          if-no-files-found: warn
