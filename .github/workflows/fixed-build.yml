@@ -28,30 +28,23 @@ jobs:
           ./gradlew clean assembleDebug --no-daemon --stacktrace
       
       - name: Find APK
-        id: find_apk
         run: |
           echo "=== Searching for APK files ==="
           find . -name "*.apk" -type f 2>/dev/null
           
           echo ""
           echo "=== Checking build structure ==="
-          ls -laR app/build/outputs/apk/ 2>/dev/null || true
+          ls -laR app/build/outputs/ 2>/dev/null || true
           
-          # Find the APK and save path
-          APK_PATH=$(find app/build -name "*.apk" -type f | head -1)
-          if [ -n "$APK_PATH" ]; then
-            echo "Found APK: $APK_PATH"
-            echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-            echo "apk_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "No APK found!"
-            echo "apk_exists=false" >> $GITHUB_OUTPUT
-          fi
+          # Copy APK to known location
+          mkdir -p ./output
+          find app/build -name "*.apk" -type f -exec cp {} ./output/ \;
+          ls -la ./output/
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
-        if: steps.find_apk.outputs.apk_exists == 'true'
         with:
           name: fanhub-debug-apk
-          path: ${{ steps.find_apk.outputs.apk_path }}
+          path: ./output/*.apk
           retention-days: 30
+          if-no-files-found: warn
