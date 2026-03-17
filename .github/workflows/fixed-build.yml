@@ -33,38 +33,38 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew --version
-          ./gradlew clean assembleDebug --no-daemon --stacktrace
-        continue-on-error: true
+          ./gradlew clean assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
       
       - name: Debug - Check all files
         run: |
-          echo "=== Current directory ==="
-          pwd
-          ls -la
+          mkdir -p ./debug-output
+          echo "=== Current directory ===" | tee ./debug-output/debug.log
+          pwd | tee -a ./debug-output/debug.log
+          ls -la | tee -a ./debug-output/debug.log
           
-          echo ""
-          echo "=== App directory ==="
-          ls -la app/
+          echo "" | tee -a ./debug-output/debug.log
+          echo "=== App directory ===" | tee -a ./debug-output/debug.log
+          ls -la app/ | tee -a ./debug-output/debug.log
           
-          echo ""
-          echo "=== Build directory ==="
-          ls -la app/build/ 2>/dev/null || echo "No build directory"
+          echo "" | tee -a ./debug-output/debug.log
+          echo "=== Build directory ===" | tee -a ./debug-output/debug.log
+          ls -laR app/build/ 2>/dev/null | tee -a ./debug-output/debug.log || echo "No build directory" | tee -a ./debug-output/debug.log
           
-          echo ""
-          echo "=== All APK files ==="
-          find . -name "*.apk" -type f 2>/dev/null || echo "No APK files"
+          echo "" | tee -a ./debug-output/debug.log
+          echo "=== All APK files ===" | tee -a ./debug-output/debug.log
+          find . -name "*.apk" -type f 2>/dev/null | tee -a ./debug-output/debug.log || echo "No APK files" | tee -a ./debug-output/debug.log
           
-          echo ""
-          echo "=== Gradle tasks ==="
-          ./gradlew tasks --all 2>/dev/null | grep -i apk || true
+          # Copy any found APKs
+          find . -name "*.apk" -type f -exec cp {} ./debug-output/ \; 2>/dev/null || true
+          ls -la ./debug-output/ | tee -a ./debug-output/debug.log
+          
+          # Copy build log
+          cp build.log ./debug-output/ 2>/dev/null || true
       
-      - name: Upload APK
+      - name: Upload Debug Info
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fanhub-debug-apk
-          path: |
-            app/build/outputs/apk/**/*.apk
-            **/*.apk
-          retention-days: 30
-          if-no-files-found: warn
+          name: debug-info
+          path: ./debug-output/
+          retention-days: 5
