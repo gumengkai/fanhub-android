@@ -1,5 +1,6 @@
 package com.funhub.data.repository
 
+import android.util.Log
 import com.funhub.data.local.dao.VideoDao
 import com.funhub.data.local.entity.VideoEntity
 import com.funhub.data.remote.api.FunHubApi
@@ -8,8 +9,6 @@ import com.funhub.domain.model.Result
 import com.funhub.domain.model.Video
 import com.funhub.domain.model.VideoClipInfo
 import com.funhub.domain.repository.VideoRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -22,29 +21,54 @@ class VideoRepositoryImpl @Inject constructor(
     private val serverAddressProvider: ServerAddressProvider
 ) : VideoRepository {
 
+    companion object {
+        private const val TAG = "VideoRepository"
+    }
+
     override suspend fun getVideos(): Result<List<Video>> {
         return try {
+            Log.d(TAG, "Getting videos from API...")
+            val baseUrl = serverAddressProvider.getBaseUrl()
+            Log.d(TAG, "Base URL: $baseUrl")
+            
             val response = api.getVideos()
+            Log.d(TAG, "Response code: ${response.code()}")
+            
             if (response.isSuccessful) {
-                val videos = response.body()?.items?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
-                // Cache to local database
-                videoDao.insertVideos(videos.map { it.toEntity() })
+                val body = response.body()
+                Log.d(TAG, "Response body null: ${body == null}")
+                
+                if (body == null) {
+                    Log.e(TAG, "Response body is null")
+                    return Result.Error(Exception("Empty response"), "Empty response")
+                }
+                
+                Log.d(TAG, "Items count: ${body.items.size}")
+                Log.d(TAG, "Total from API: ${body.total}")
+                
+                val videos = body.items.mapIndexed { index, dto ->
+                    Log.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
+                    dto.toDomainModel(baseUrl)
+                }
+                
+                Log.d(TAG, "Converted ${videos.size} videos successfully")
                 Result.Success(videos)
             } else {
-                Result.Error(HttpException(response), "Failed to load videos")
+                val errorBody = response.errorBody()?.string()
+                Log.e(TAG, "API error: ${response.code()}, body: $errorBody")
+                Result.Error(HttpException(response), "Failed to load videos: ${response.code()}")
             }
         } catch (e: IOException) {
-            // Return cached data on network error
-            val cachedVideos = videoDao.getAllVideos()
-            Result.Success(cachedVideos.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) })
+            Log.e(TAG, "Network error: ${e.message}", e)
+            Result.Error(e, "Network error: ${e.message}")
         } catch (e: Exception) {
+            Log.e(TAG, "Unknown error: ${e.message}", e)
             Result.Error(e, e.message ?: "Unknown error")
         }
     }
 
     override suspend fun getVideoById(id: String): Result<Video> {
         return try {
-            // Try to get from cache first
             val cached = videoDao.getVideoById(id)
             if (cached != null) {
                 Result.Success(cached.toDomainModel(serverAddressProvider.getBaseUrl()))
@@ -93,16 +117,13 @@ class VideoRepositoryImpl @Inject constructor(
 
     override suspend fun createClip(videoId: String, startTime: Long, endTime: Long): Result<String> {
         return try {
-            val response = api.createClip(
-                videoId,
-                com.funhub.data.remote.dto.ClipRequest(startTime, endTime)
-            )
+            val response = api.createClip(videoId, com.funhub.data.remote.dto.ClipRequest(startTime, endTime))
             if (response.isSuccessful) {
                 val taskId = response.body()?.taskId
                 if (taskId != null) {
                     Result.Success(taskId)
                 } else {
-                    Result.Error(Exception("No task ID returned"), "No task ID returned")
+                    Result.Error(Exception("No task ID"), "No task ID")
                 }
             } else {
                 Result.Error(HttpException(response), "Failed to create clip")
@@ -115,11 +136,7 @@ class VideoRepositoryImpl @Inject constructor(
     override suspend fun checkFFmpeg(): Result<Boolean> {
         return try {
             val response = api.checkFFmpeg()
-            if (response.isSuccessful) {
-                Result.Success(response.body()?.available ?: false)
-            } else {
-                Result.Success(false)
-            }
+            Result.Success(response.body()?.available ?: false)
         } catch (e: Exception) {
             Result.Error(e, e.message ?: "Unknown error")
         }
@@ -130,7 +147,7 @@ class VideoRepositoryImpl @Inject constructor(
             id = getStringId(),
             title = title,
             description = description,
-            thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
+            thumbnailUrl = thumbnailUrl?.let { if (it.startsWith("http")) it else "$baseUrl$it" },
             streamUrl = "$baseUrl/api/videos/$id/stream",
             duration = duration.toLong(),
             fileSize = fileSize,
@@ -169,14 +186,14 @@ class VideoRepositoryImpl @Inject constructor(
             id = id,
             title = title,
             description = description,
-            thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
+            thumbnailUrl = thumbnailUrl?.let { if (it.startsWith("http")) it else "$baseUrl$it" },
             streamUrl = streamUrl,
             duration = duration,
             fileSize = fileSize,
             createdAt = createdAt,
-            isFavorite = isFavorite
+            isFavorite = isFavorite,
+            viewCount = 0,
+            creatorName = ""
         )
     }
 }
-
-
