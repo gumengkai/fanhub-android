@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
@@ -74,7 +76,8 @@ sealed class ConnectionState {
 @Composable
 fun EnhancedSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    onTestConnection: suspend (String) -> Boolean = { true } // Default for preview
+    onTestConnection: suspend (String) -> Boolean = { true },
+    onNavigateToTags: () -> Unit = {}
 ) {
     val settings by viewModel.settings.collectAsState()
     val scope = rememberCoroutineScope()
@@ -114,6 +117,11 @@ fun EnhancedSettingsScreen(
             dynamicColor = settings!!.useDynamicColor,
             onThemeModeChange = viewModel::updateThemeMode,
             onDynamicColorChange = viewModel::updateDynamicColor
+        )
+
+        // Tag Management
+        EnhancedTagSettingsCard(
+            onNavigateToTags = onNavigateToTags
         )
         
         // About
@@ -561,6 +569,60 @@ fun EnhancedAboutCard() {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EnhancedTagSettingsCard(
+    onNavigateToTags: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onNavigateToTags),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Label,
+                    contentDescription = null,
+                    modifier = Modifier.padding(8.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "标签管理",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "管理视频和图片标签",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = "进入",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

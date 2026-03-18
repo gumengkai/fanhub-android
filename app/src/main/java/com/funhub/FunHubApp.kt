@@ -28,6 +28,7 @@ import com.funhub.ui.images.ImageListScreen
 import com.funhub.ui.profile.ProfileScreen
 import com.funhub.ui.search.SearchScreen
 import com.funhub.ui.settings.EnhancedSettingsScreen
+import com.funhub.ui.tags.TagsScreen
 import com.funhub.ui.videos.TikTokStyleVideoScreen
 import com.funhub.ui.videos.VideoListScreen
 import com.funhub.ui.videos.VideoPlayerScreen
@@ -171,7 +172,16 @@ fun FunHubApp() {
 
             // Settings - 从个人中心跳转
             composable("settings") {
-                EnhancedSettingsScreen()
+                EnhancedSettingsScreen(
+                    onNavigateToTags = {
+                        navController.navigate("tags")
+                    }
+                )
+            }
+
+            // Tags - 标签管理
+            composable("tags") {
+                TagsScreen()
             }
 
             // Favorites - 从个人中心跳转
