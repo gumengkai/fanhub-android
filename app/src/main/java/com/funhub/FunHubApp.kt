@@ -27,6 +27,7 @@ import androidx.navigation.navArgument
 import com.funhub.ui.clips.ClipScreen
 import com.funhub.ui.components.BiliBottomNavigation
 import com.funhub.ui.components.BiliNavItem
+import com.funhub.ui.debug.DebugLogScreen
 import com.funhub.ui.images.ImageListScreen
 import com.funhub.ui.profile.ProfileScreen
 import com.funhub.ui.search.SearchScreen
@@ -207,6 +208,9 @@ fun FunHubApp() {
                 EnhancedSettingsScreen(
                     onNavigateToTags = {
                         navController.navigate("tags")
+                    },
+                    onNavigateToDebugLog = {
+                        navController.navigate("debug_log")
                     }
                 )
             }
@@ -214,6 +218,13 @@ fun FunHubApp() {
             // Tags - 标签管理
             composable("tags") {
                 TagsScreen()
+            }
+            
+            // Debug Log
+            composable("debug_log") {
+                DebugLogScreen(
+                    onNavigateBack = { navController.navigateUp() }
+                )
             }
 
             // Favorites - 从个人中心跳转

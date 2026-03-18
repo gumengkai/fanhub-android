@@ -1,6 +1,5 @@
 package com.funhub.data.repository
 
-import android.util.Log
 import com.funhub.data.local.dao.VideoDao
 import com.funhub.data.local.entity.VideoEntity
 import com.funhub.data.remote.api.FunHubApi
@@ -9,6 +8,7 @@ import com.funhub.domain.model.Result
 import com.funhub.domain.model.Video
 import com.funhub.domain.model.VideoClipInfo
 import com.funhub.domain.repository.VideoRepository
+import com.funhub.ui.debug.AppLog
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -27,42 +27,42 @@ class VideoRepositoryImpl @Inject constructor(
 
     override suspend fun getVideos(): Result<List<Video>> {
         return try {
-            Log.d(TAG, "Getting videos from API...")
+            AppLog.d(TAG, "Getting videos from API...")
             val baseUrl = serverAddressProvider.getBaseUrl()
-            Log.d(TAG, "Base URL: $baseUrl")
+            AppLog.d(TAG, "Base URL: $baseUrl")
             
             val response = api.getVideos()
-            Log.d(TAG, "Response code: ${response.code()}")
+            AppLog.d(TAG, "Response code: ${response.code()}")
             
             if (response.isSuccessful) {
                 val body = response.body()
-                Log.d(TAG, "Response body null: ${body == null}")
+                AppLog.d(TAG, "Response body null: ${body == null}")
                 
                 if (body == null) {
-                    Log.e(TAG, "Response body is null")
+                    AppLog.e(TAG, "Response body is null")
                     return Result.Error(Exception("Empty response"), "Empty response")
                 }
                 
-                Log.d(TAG, "Items count: ${body.items.size}")
-                Log.d(TAG, "Total from API: ${body.total}")
+                AppLog.d(TAG, "Items count: ${body.items.size}")
+                AppLog.d(TAG, "Total from API: ${body.total}")
                 
                 val videos = body.items.mapIndexed { index, dto ->
-                    Log.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
+                    AppLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
                     dto.toDomainModel(baseUrl)
                 }
                 
-                Log.d(TAG, "Converted ${videos.size} videos successfully")
+                AppLog.d(TAG, "Converted ${videos.size} videos successfully")
                 Result.Success(videos)
             } else {
                 val errorBody = response.errorBody()?.string()
-                Log.e(TAG, "API error: ${response.code()}, body: $errorBody")
+                AppLog.e(TAG, "API error: ${response.code()}, body: $errorBody")
                 Result.Error(HttpException(response), "Failed to load videos: ${response.code()}")
             }
         } catch (e: IOException) {
-            Log.e(TAG, "Network error: ${e.message}", e)
+            AppLog.e(TAG, "Network error: ${e.message}")
             Result.Error(e, "Network error: ${e.message}")
         } catch (e: Exception) {
-            Log.e(TAG, "Unknown error: ${e.message}", e)
+            AppLog.e(TAG, "Unknown error: ${e.message}")
             Result.Error(e, e.message ?: "Unknown error")
         }
     }
