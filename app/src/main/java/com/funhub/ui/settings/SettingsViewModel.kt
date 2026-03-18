@@ -17,8 +17,14 @@ class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private val _settings = MutableStateFlow<AppSettings?>(null)
-    val settings: StateFlow<AppSettings?> = _settings.asStateFlow()
+    private val _settings = MutableStateFlow<AppSettings>(
+        AppSettings(
+            serverAddress = "",
+            themeMode = ThemeMode.SYSTEM,
+            useDynamicColor = false
+        )
+    )
+    val settings: StateFlow<AppSettings> = _settings.asStateFlow()
 
     init {
         loadSettings()
@@ -26,8 +32,13 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadSettings() {
         viewModelScope.launch {
-            settingsRepository.getSettings().collect { settings ->
-                _settings.value = settings ?: AppSettings(
+            try {
+                settingsRepository.getSettings().collect { settings ->
+                    _settings.value = settings
+                }
+            } catch (e: Exception) {
+                // Keep default value on error
+                _settings.value = AppSettings(
                     serverAddress = "",
                     themeMode = ThemeMode.SYSTEM,
                     useDynamicColor = false

@@ -82,17 +82,6 @@ fun EnhancedSettingsScreen(
     onNavigateToDebugLog: () -> Unit = {}
 ) {
     val settings by viewModel.settings.collectAsState()
-    val scope = rememberCoroutineScope()
-    
-    if (settings == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-        return
-    }
     
     val scrollState = rememberScrollState()
     
@@ -108,15 +97,15 @@ fun EnhancedSettingsScreen(
         
         // Server Settings with Connection Test
         EnhancedServerSettingsCard(
-            serverUrl = settings!!.serverAddress,
+            serverUrl = settings.serverAddress,
             onServerUrlChange = viewModel::updateServerUrl,
             onTestConnection = onTestConnection
         )
         
         // Theme Settings
         EnhancedThemeSettingsCard(
-            themeMode = settings!!.themeMode,
-            dynamicColor = settings!!.useDynamicColor,
+            themeMode = settings.themeMode,
+            dynamicColor = settings.useDynamicColor,
             onThemeModeChange = viewModel::updateThemeMode,
             onDynamicColorChange = viewModel::updateDynamicColor
         )
