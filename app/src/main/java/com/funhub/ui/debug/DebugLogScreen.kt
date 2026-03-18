@@ -45,14 +45,17 @@ object AppLog {
                 logs.removeAt(0)
             }
         }
-        listeners.forEach { it() }
+        // Copy listeners to avoid concurrent modification
+        val listenersCopy = synchronized(listeners) { listeners.toList() }
+        listenersCopy.forEach { it() }
     }
     
     fun getLogs(): List<LogEntry> = synchronized(logs) { logs.toList() }
     
     fun clear() {
         synchronized(logs) { logs.clear() }
-        listeners.forEach { it() }
+        val listenersCopy = synchronized(listeners) { listeners.toList() }
+        listenersCopy.forEach { it() }
     }
     
     fun addListener(listener: () -> Unit) {

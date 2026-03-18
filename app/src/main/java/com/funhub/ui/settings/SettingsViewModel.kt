@@ -49,26 +49,34 @@ class SettingsViewModel @Inject constructor(
 
     fun updateServerUrl(url: String) {
         viewModelScope.launch {
-            settingsRepository.saveServerAddress(url)
-            // Refresh settings
-            _settings.value = _settings.value?.copy(serverAddress = url)
-                ?: AppSettings(serverAddress = url, themeMode = ThemeMode.SYSTEM, useDynamicColor = true)
+            try {
+                settingsRepository.saveServerAddress(url)
+                _settings.value = _settings.value.copy(serverAddress = url)
+            } catch (e: Exception) {
+                // Ignore save errors
+            }
         }
     }
 
     fun updateThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
-            settingsRepository.saveThemeMode(mode)
-            _settings.value = _settings.value?.copy(themeMode = mode)
-                ?: AppSettings(serverAddress = "", themeMode = mode, useDynamicColor = true)
+            try {
+                settingsRepository.saveThemeMode(mode)
+                _settings.value = _settings.value.copy(themeMode = mode)
+            } catch (e: Exception) {
+                // Ignore save errors
+            }
         }
     }
 
     fun updateDynamicColor(enabled: Boolean) {
         viewModelScope.launch {
-            settingsRepository.saveDynamicColor(enabled)
-            _settings.value = _settings.value?.copy(useDynamicColor = enabled)
-                ?: AppSettings(serverAddress = "", themeMode = ThemeMode.SYSTEM, useDynamicColor = enabled)
+            try {
+                settingsRepository.saveDynamicColor(enabled)
+                _settings.value = _settings.value.copy(useDynamicColor = enabled)
+            } catch (e: Exception) {
+                // Ignore save errors
+            }
         }
     }
 }
