@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,7 +31,9 @@ import androidx.navigation.navArgument
 import com.funhub.ui.clips.ClipScreen
 import com.funhub.ui.images.ImageDetailScreen
 import com.funhub.ui.images.ImageListScreen
-import com.funhub.ui.settings.SettingsScreen
+import com.funhub.ui.search.SearchScreen
+import com.funhub.ui.settings.EnhancedSettingsScreen
+import com.funhub.ui.videos.TikTokStyleVideoScreen
 import com.funhub.ui.videos.VideoListScreen
 import com.funhub.ui.videos.VideoPlayerScreen
 
@@ -39,25 +43,41 @@ fun FunHubApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
+
     val showBottomBar = currentRoute in listOf(
         Screen.Videos.route,
         Screen.Images.route,
         Screen.Settings.route
     )
-    
+
+    val showSearchButton = currentRoute in listOf(
+        Screen.Videos.route,
+        Screen.Images.route
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         when (currentRoute) {
                             Screen.Videos.route -> "视频库"
                             Screen.Images.route -> "图片库"
                             Screen.Settings.route -> "设置"
+                            Screen.Search.route -> "搜索"
                             else -> "FunHub"
                         }
                     )
+                },
+                actions = {
+                    if (showSearchButton) {
+                        IconButton(onClick = { navController.navigate(Screen.Search.route) }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "搜索"
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -133,7 +153,7 @@ fun NavigationGraph(
                 }
             )
         }
-        
+
         composable(
             route = Screen.VideoPlayer.route,
             arguments = listOf(navArgument("videoId") { type = NavType.StringType })
@@ -145,7 +165,7 @@ fun NavigationGraph(
                 onClipClick = { navController.navigate(Screen.Clip.createRoute(it)) }
             )
         }
-        
+
         composable(Screen.Images.route) {
             ImageListScreen(
                 onImageClick = { imageId ->
@@ -153,7 +173,7 @@ fun NavigationGraph(
                 }
             )
         }
-        
+
         composable(
             route = Screen.ImageDetail.route,
             arguments = listOf(navArgument("imageId") { type = NavType.StringType })
@@ -164,10 +184,10 @@ fun NavigationGraph(
                 onBackClick = { navController.navigateUp() }
             )
         }
-        
+
         composable(
             route = Screen.Clip.route,
-            arguments = listOf(navArgument("videoId") { 
+            arguments = listOf(navArgument("videoId") {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
@@ -176,9 +196,23 @@ fun NavigationGraph(
             val videoId = backStackEntry.arguments?.getString("videoId")
             ClipScreen(videoId = videoId)
         }
-        
+
         composable(Screen.Settings.route) {
-            SettingsScreen()
+            EnhancedSettingsScreen()
+        }
+
+        composable(Screen.Search.route) {
+            SearchScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onVideoClick = { video ->
+                    navController.navigate(Screen.VideoPlayer.createRoute(video.id))
+                }
+            )
+        }
+
+        // TikTok style video screen (alternative video player)
+        composable(Screen.TikTokVideos.route) {
+            TikTokStyleVideoScreen()
         }
     }
 }

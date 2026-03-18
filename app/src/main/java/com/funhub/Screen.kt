@@ -13,4 +13,6 @@ sealed class Screen(val route: String) {
         fun createRoute(videoId: String?) = if (videoId != null) "clip?videoId=$videoId" else "clip"
     }
     data object Settings : Screen("settings")
+    data object Search : Screen("search")
+    data object TikTokVideos : Screen("tiktok_videos")
 }
