@@ -3,6 +3,7 @@ package com.funhub
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayCircle
@@ -24,11 +25,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.funhub.ui.clips.ClipScreen
+import com.funhub.ui.components.BiliBottomNavigation
+import com.funhub.ui.components.BiliNavItem
 import com.funhub.ui.images.ImageListScreen
 import com.funhub.ui.profile.ProfileScreen
 import com.funhub.ui.search.SearchScreen
 import com.funhub.ui.settings.EnhancedSettingsScreen
 import com.funhub.ui.tags.TagsScreen
+import com.funhub.ui.theme.BiliPink
 import com.funhub.ui.videos.TikTokStyleVideoScreen
 import com.funhub.ui.videos.VideoListScreen
 import com.funhub.ui.videos.VideoPlayerScreen
@@ -61,33 +65,69 @@ fun FunHubApp() {
 
     val showBottomBar = currentDestination?.route in bottomNavItems.map { it.route }
 
+    val biliNavItems = listOf(
+        BiliNavItem(
+            label = "短视频",
+            selectedIcon = Icons.Filled.PlayCircle,
+            unselectedIcon = Icons.Outlined.PlayCircle
+        ),
+        BiliNavItem(
+            label = "视频库",
+            selectedIcon = Icons.Filled.VideoLibrary,
+            unselectedIcon = Icons.Outlined.VideoLibrary
+        ),
+        BiliNavItem(
+            label = "添加",
+            selectedIcon = Icons.Filled.Add,
+            unselectedIcon = Icons.Filled.Add
+        ),
+        BiliNavItem(
+            label = "图片库",
+            selectedIcon = Icons.Filled.Image,
+            unselectedIcon = Icons.Outlined.Image
+        ),
+        BiliNavItem(
+            label = "我的",
+            selectedIcon = Icons.Filled.Person,
+            unselectedIcon = Icons.Outlined.Person
+        )
+    )
+
+    val currentRoute = currentDestination?.route
+    val selectedIndex = when (currentRoute) {
+        BottomNavItem.ShortVideo.route -> 0
+        BottomNavItem.VideoLibrary.route -> 1
+        BottomNavItem.ImageLibrary.route -> 3
+        BottomNavItem.Profile.route -> 4
+        else -> 0
+    }
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                NavigationBar {
-                    bottomNavItems.forEach { item ->
-                        val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = item.title
-                                )
-                            },
-                            label = { Text(item.title) },
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                BiliBottomNavigation(
+                    items = biliNavItems,
+                    selectedIndex = selectedIndex,
+                    onItemSelected = { index ->
+                        val route = when (index) {
+                            0 -> BottomNavItem.ShortVideo.route
+                            1 -> BottomNavItem.VideoLibrary.route
+                            3 -> BottomNavItem.ImageLibrary.route
+                            4 -> BottomNavItem.Profile.route
+                            else -> BottomNavItem.ShortVideo.route
+                        }
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
-                        )
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onAddClick = {
+                        // TODO: Open upload dialog
                     }
-                }
+                )
             }
         }
     ) { innerPadding ->
