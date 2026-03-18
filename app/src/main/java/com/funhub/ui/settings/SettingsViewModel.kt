@@ -27,7 +27,11 @@ class SettingsViewModel @Inject constructor(
     private fun loadSettings() {
         viewModelScope.launch {
             settingsRepository.getSettings().collect { settings ->
-                _settings.value = settings
+                _settings.value = settings ?: AppSettings(
+                    serverAddress = "",
+                    themeMode = ThemeMode.SYSTEM,
+                    useDynamicColor = false
+                )
             }
         }
     }
