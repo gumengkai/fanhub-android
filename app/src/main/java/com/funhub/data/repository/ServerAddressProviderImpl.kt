@@ -24,15 +24,11 @@ class ServerAddressProviderImpl @Inject constructor(
     companion object {
         private val SERVER_ADDRESS = stringPreferencesKey("server_address")
         private const val DEFAULT_SERVER = "http://192.168.1.100:5000"
-        
-        // In-memory cache for current address
-        @Volatile
-        private var cachedAddress: String? = null
     }
 
     override fun getBaseUrl(): String {
-        // Return cached value if available
-        cachedAddress?.let { return it }
+        // First check SettingsRepositoryImpl's cache
+        SettingsRepositoryImpl.cachedServerAddress?.let { return it }
         
         // Otherwise read from DataStore
         return runBlocking {
@@ -40,7 +36,7 @@ class ServerAddressProviderImpl @Inject constructor(
                 preferences[SERVER_ADDRESS] ?: DEFAULT_SERVER
             }.first()
         }.also {
-            cachedAddress = it
+            SettingsRepositoryImpl.cachedServerAddress = it
         }
     }
     
@@ -49,7 +45,7 @@ class ServerAddressProviderImpl @Inject constructor(
             preferences[SERVER_ADDRESS] = url
         }
         // Update cache
-        cachedAddress = url
+        SettingsRepositoryImpl.cachedServerAddress = url
     }
     
 

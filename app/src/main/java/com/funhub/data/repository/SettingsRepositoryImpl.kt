@@ -21,8 +21,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val serverAddressProvider: ServerAddressProvider
+    @ApplicationContext private val context: Context
 ) : SettingsRepository {
 
     private val dataStore = context.dataStore
@@ -33,12 +32,18 @@ class SettingsRepositoryImpl @Inject constructor(
         private val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         
         private const val DEFAULT_SERVER = "http://192.168.1.100:5000"
+        
+        // Static cache that can be accessed from ServerAddressProvider
+        @Volatile
+        var cachedServerAddress: String? = null
     }
 
     override fun getSettings(): Flow<AppSettings> {
         return dataStore.data.map { preferences ->
+            val address = preferences[SERVER_ADDRESS] ?: DEFAULT_SERVER
+            cachedServerAddress = address
             AppSettings(
-                serverAddress = preferences[SERVER_ADDRESS] ?: DEFAULT_SERVER,
+                serverAddress = address,
                 themeMode = ThemeMode.valueOf(preferences[THEME_MODE] ?: ThemeMode.SYSTEM.name),
                 useDynamicColor = preferences[DYNAMIC_COLOR] ?: true
             )
@@ -46,12 +51,12 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveServerAddress(address: String) {
+        // Update cache first
+        cachedServerAddress = address
         // Save to DataStore
         dataStore.edit { preferences ->
             preferences[SERVER_ADDRESS] = address
         }
-        // Update the provider cache
-        serverAddressProvider.saveBaseUrl(address)
     }
 
     override suspend fun saveThemeMode(mode: ThemeMode) {
