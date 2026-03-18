@@ -7,7 +7,21 @@
 - **视频库**: 浏览、播放、收藏视频
 - **图片库**: 浏览、收藏图片
 - **视频剪辑**: 选择视频片段进行剪辑
-- **设置**: 服务器地址配置、主题设置
+- **搜索功能**: 支持视频、用户搜索，带搜索历史
+- **抖音风格播放器**: 垂直滑动切换视频，双击点赞
+- **增强设置**: 服务器连接测试、主题切换、动态配色
+
+## 最新更新 (2026-03-18)
+
+### 新增功能
+- 🔍 **搜索功能** - 实时搜索视频，支持搜索历史和热门推荐
+- ⚙️ **增强设置页面** - 现代化卡片设计，服务器连接测试
+- 🎵 **抖音风格视频播放器** - 沉浸式全屏播放，手势操作
+
+### 技术改进
+- 优化 Video 数据模型，支持社交功能字段
+- 修复 Hilt 依赖注入问题
+- 完善错误处理和类型安全
 
 ## 技术栈
 
@@ -72,9 +86,17 @@ app/src/main/java/com/funhub/
 │   └── usecase/    # 用例
 ├── ui/             # UI层
 │   ├── videos/     # 视频模块
+│   │   ├── VideoListScreen.kt
+│   │   ├── VideoPlayerScreen.kt
+│   │   └── TikTokStyleVideoScreen.kt  # 抖音风格播放器
 │   ├── images/     # 图片模块
 │   ├── clips/      # 剪辑模块
+│   ├── search/     # 搜索模块 (新增)
+│   │   ├── SearchScreen.kt
+│   │   └── SearchViewModel.kt
 │   ├── settings/   # 设置模块
+│   │   ├── SettingsScreen.kt
+│   │   └── EnhancedSettingsScreen.kt  # 增强设置
 │   ├── components/ # 通用组件
 │   └── theme/      # 主题配置
 ├── App.kt          # Application类
