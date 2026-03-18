@@ -48,6 +48,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -100,14 +101,6 @@ fun EnhancedSettingsScreen(
             serverUrl = settings.serverAddress,
             onServerUrlChange = viewModel::updateServerUrl,
             onTestConnection = onTestConnection
-        )
-        
-        // Theme Settings
-        EnhancedThemeSettingsCard(
-            themeMode = settings.themeMode,
-            dynamicColor = settings.useDynamicColor,
-            onThemeModeChange = viewModel::updateThemeMode,
-            onDynamicColorChange = viewModel::updateDynamicColor
         )
 
         // Tag Management
@@ -254,18 +247,30 @@ fun EnhancedServerSettingsCard(
                 }
                 
                 // Save Button
+                var showSaveSuccess by remember { mutableStateOf(false) }
                 Button(
-                    onClick = { onServerUrlChange(text) },
+                    onClick = { 
+                        onServerUrlChange(text)
+                        showSaveSuccess = true
+                    },
                     enabled = text.isNotBlank(),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("保存")
+                    if (showSaveSuccess) {
+                        Text("已保存!")
+                        LaunchedEffect(Unit) {
+                            delay(1500)
+                            showSaveSuccess = false
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("保存")
+                    }
                 }
             }
             
