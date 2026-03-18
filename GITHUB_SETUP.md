@@ -1,113 +1,129 @@
 # GitHub 仓库设置指南
 
-## 方法一：手动创建仓库（推荐）
+## 方法1: 手动创建仓库（推荐）
 
-### 1. 在GitHub上创建仓库
+### 步骤1: 在 GitHub 创建仓库
 
 1. 访问 https://github.com/new
-2. 输入仓库名称: `fanhub-android`
-3. 选择 "Public" 或 "Private"
-4. 点击 "Create repository"
+2. 填写信息：
+   - **Repository name**: `fanhub-android`
+   - **Description**: `FunHub 私人媒体中心 Android 客户端`
+   - **Visibility**: Public（或 Private）
+   - ✅ 勾选 "Add a README file"（可选）
+3. 点击 **Create repository**
 
-### 2. 推送代码到GitHub
+### 步骤2: 推送本地代码
 
 ```bash
-# 在本地项目目录中执行
-cd /home/gmk/fanhub-android
+cd /home/gmk/.openclaw/workspace/fanhub-android
 
-# 添加远程仓库（替换YOUR_USERNAME为你的GitHub用户名）
-git remote add origin https://github.com/YOUR_USERNAME/fanhub-android.git
+# 设置远程仓库地址
+git remote set-url origin https://github.com/gumengkai/fanhub-android.git
 
 # 推送代码
-git branch -M main
 git push -u origin main
 ```
 
-### 3. 查看GitHub Actions构建
+### 步骤3: 验证推送
 
-1. 访问 `https://github.com/YOUR_USERNAME/fanhub-android/actions`
-2. 等待构建完成
-3. 下载生成的APK文件
+访问 https://github.com/gumengkai/fanhub-android 查看代码是否已上传
 
-## 方法二：使用GitHub CLI
+---
 
-### 安装GitHub CLI
+## 方法2: 使用 GitHub CLI
 
-```bash
-# Ubuntu/Debian
-curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-sudo apt update
-sudo apt install gh
-
-# 登录
-ght auth login
-```
-
-### 创建仓库并推送
+如果安装了 `gh` 命令行工具：
 
 ```bash
-cd /home/gmk/fanhub-android
+# 登录 GitHub
+gh auth login
 
 # 创建仓库
-gh repo create fanhub-android --public --source=. --remote=origin --push
+gh repo create fanhub-android \
+  --description "FunHub 私人媒体中心 Android 客户端" \
+  --public \
+  --source=. \
+  --remote=origin \
+  --push
 ```
 
-## 方法三：使用API创建仓库
+---
 
-### 获取GitHub Token
+## 方法3: 使用 Git Bundle 文件
 
-1. 访问 https://github.com/settings/tokens
-2. 点击 "Generate new token (classic)"
-3. 选择权限: `repo`
-4. 生成token并复制
+如果无法直接推送，可以使用生成的 bundle 文件：
 
-### 使用curl创建仓库
+1. 下载文件：`fanhub-android.bundle` (位于项目根目录)
+2. 在本地克隆：
+   ```bash
+   git clone fanhub-android.bundle fanhub-android
+   ```
+3. 然后按照方法1推送到 GitHub
 
-```bash
-# 设置token
-export GITHUB_TOKEN=your_token_here
+---
 
-# 创建仓库
-curl -H "Authorization: token $GITHUB_TOKEN" \
-     -H "Accept: application/vnd.github.v3+json" \
-     -X POST \
-     -d '{"name":"fanhub-android","description":"FunHub Android Client","private":false}' \
-     https://api.github.com/user/repos
+## 上传 APK 文件
 
-# 推送代码
-git remote add origin https://github.com/YOUR_USERNAME/fanhub-android.git
-git push -u origin main
+构建好的 APK 文件可以上传到 GitHub Releases：
+
+1. 访问仓库页面
+2. 点击右侧 **Releases**
+3. 点击 **Create a new release**
+4. 填写版本信息：
+   - **Tag**: `v1.0.0`
+   - **Title**: `FunHub Android v1.0.0`
+   - **Description**: 复制下方内容
+5. 上传 APK 文件
+6. 点击 **Publish release**
+
+### Release 描述模板
+
+```markdown
+## FunHub Android v1.0.0
+
+### 新增功能
+- 🔍 搜索功能 - 支持视频搜索、历史记录、热门推荐
+- ⚙️ 增强设置 - 现代化UI、服务器连接测试
+- 🎵 抖音风格播放器 - 垂直滑动、双击点赞
+
+### 技术栈
+- Kotlin + Jetpack Compose
+- MVVM + Clean Architecture
+- Hilt 依赖注入
+- ExoPlayer 视频播放
+
+### 下载
+- [FunHub-v1.0.0-debug.apk](链接)
+
+### 安装要求
+- Android 8.0+ (API 26+)
+- 需要配置 FunHub 服务器地址
 ```
 
-## 构建状态检查
+---
 
-推送代码后，GitHub Actions会自动开始构建。你可以在以下位置查看：
+## GitHub Actions 自动构建
 
-- **Actions页面**: `https://github.com/YOUR_USERNAME/fanhub-android/actions`
-- **构建状态**: 查看工作流运行状态
-- **Artifacts**: 构建完成后下载APK文件
+推送代码后，GitHub Actions 会自动构建 APK：
+
+1. 访问 https://github.com/gumengkai/fanhub-android/actions
+2. 查看构建状态
+3. 构建完成后，在 Artifacts 中下载 APK
+
+---
 
 ## 常见问题
 
-### 1. 构建失败
+### Q: 推送时提示权限错误？
+A: 需要使用 Personal Access Token 或配置 SSH key
 
-如果构建失败，检查：
-- 代码是否有语法错误
-- 依赖是否正确配置
-- 查看GitHub Actions日志获取详细错误信息
+### Q: 仓库已存在？
+A: 先删除旧仓库，或使用 `git push --force` 强制推送
 
-### 2. APK下载
-
-构建成功后：
-1. 进入Actions页面
-2. 点击最新的工作流运行
-3. 滚动到页面底部
-4. 在Artifacts部分下载APK
-
-### 3. 权限问题
-
-如果遇到权限错误，确保：
-- GitHub Token有repo权限
-- 仓库设置中Actions已启用
+### Q: 如何生成 Personal Access Token？
+A: 
+1. 访问 https://github.com/settings/tokens
+2. 点击 **Generate new token (classic)**
+3. 勾选 `repo` 权限
+4. 生成后复制 token
+5. 推送时使用：`git push https://TOKEN@github.com/gumengkai/fanhub-android.git`
