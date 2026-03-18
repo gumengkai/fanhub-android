@@ -21,7 +21,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val serverAddressProvider: ServerAddressProvider
 ) : SettingsRepository {
 
     private val dataStore = context.dataStore
@@ -45,9 +46,12 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveServerAddress(address: String) {
+        // Save to DataStore
         dataStore.edit { preferences ->
             preferences[SERVER_ADDRESS] = address
         }
+        // Update the provider cache
+        serverAddressProvider.saveBaseUrl(address)
     }
 
     override suspend fun saveThemeMode(mode: ThemeMode) {
