@@ -26,7 +26,7 @@ class VideoRepositoryImpl @Inject constructor(
         return try {
             val response = api.getVideos()
             if (response.isSuccessful) {
-                val videos = response.body()?.videos?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
+                val videos = response.body()?.items?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
                 // Cache to local database
                 videoDao.insertVideos(videos.map { it.toEntity() })
                 Result.Success(videos)
@@ -74,9 +74,9 @@ class VideoRepositoryImpl @Inject constructor(
                 if (info != null) {
                     Result.Success(
                         VideoClipInfo(
-                            id = info.id,
+                            id = info.id.toString(),
                             title = info.title,
-                            duration = info.duration,
+                            duration = info.duration.toLong(),
                             thumbnailUrl = info.thumbnailUrl?.let { serverAddressProvider.getBaseUrl() + it }
                         )
                     )
@@ -127,16 +127,27 @@ class VideoRepositoryImpl @Inject constructor(
 
     private fun VideoDto.toDomainModel(baseUrl: String): Video {
         return Video(
-            id = id,
+            id = getStringId(),
             title = title,
             description = description,
             thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
             streamUrl = "$baseUrl/api/videos/$id/stream",
-            duration = duration,
+            duration = duration.toLong(),
             fileSize = fileSize,
-            createdAt = createdAt,
-            isFavorite = false
+            createdAt = parseDateToTimestamp(createdAt),
+            isFavorite = isFavorite,
+            viewCount = viewCount,
+            creatorName = ""
         )
+    }
+
+    private fun parseDateToTimestamp(dateString: String?): Long {
+        if (dateString == null) return 0
+        return try {
+            java.time.Instant.parse(dateString).toEpochMilli()
+        } catch (e: Exception) {
+            0
+        }
     }
 
     private fun Video.toEntity(): VideoEntity {

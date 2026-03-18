@@ -26,7 +26,7 @@ class ImageRepositoryImpl @Inject constructor(
         return try {
             val response = api.getImages()
             if (response.isSuccessful) {
-                val images = response.body()?.images?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
+                val images = response.body()?.items?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
                 // Cache to local database
                 imageDao.insertImages(images.map { it.toEntity() })
                 Result.Success(images)
@@ -71,16 +71,25 @@ class ImageRepositoryImpl @Inject constructor(
 
     private fun ImageDto.toDomainModel(baseUrl: String): Image {
         return Image(
-            id = id,
+            id = getStringId(),
             title = title,
             url = baseUrl + url,
             thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
             width = width,
             height = height,
             fileSize = fileSize,
-            createdAt = createdAt,
-            isFavorite = false
+            createdAt = parseDateToTimestamp(createdAt),
+            isFavorite = isFavorite
         )
+    }
+
+    private fun parseDateToTimestamp(dateString: String?): Long {
+        if (dateString == null) return 0
+        return try {
+            java.time.Instant.parse(dateString).toEpochMilli()
+        } catch (e: Exception) {
+            0
+        }
     }
 
     private fun Image.toEntity(): ImageEntity {
