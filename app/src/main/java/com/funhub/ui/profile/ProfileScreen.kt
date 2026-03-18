@@ -5,25 +5,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.funhub.domain.model.Image
 import com.funhub.domain.model.Video
+import com.funhub.ui.images.ImageListViewModel
 import com.funhub.ui.videos.VideoListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,10 +32,17 @@ fun ProfileScreen(
     navController: NavController,
     onSettingsClick: () -> Unit,
     onFavoritesClick: () -> Unit,
-    viewModel: VideoListViewModel = hiltViewModel()
+    videoViewModel: VideoListViewModel = hiltViewModel(),
+    imageViewModel: ImageListViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val favoriteVideos = uiState.videos.filter { it.isFavorite }
+    val videoUiState by videoViewModel.uiState.collectAsState()
+    val imageUiState by imageViewModel.uiState.collectAsState()
+    var selectedTab by remember { mutableStateOf(0) }
+
+    val videos = videoUiState.videos
+    val images = imageUiState.images
+    val favoriteVideos = videos.filter { it.isFavorite }
+    val favoriteImages = images.filter { it.isFavorite }
 
     Scaffold(
         topBar = {
@@ -45,10 +52,7 @@ fun ProfileScreen(
                     IconButton(onClick = onSettingsClick) {
                         Icon(Icons.Outlined.Settings, "设置")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                }
             )
         }
     ) { paddingValues ->
@@ -57,47 +61,84 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // User Info Card
-            UserInfoCard()
-
             // Stats Row
             StatsRow(
-                videoCount = uiState.videos.size,
-                favoriteCount = favoriteVideos.size
+                videoCount = videos.size,
+                imageCount = images.size,
+                favoriteVideoCount = favoriteVideos.size,
+                favoriteImageCount = favoriteImages.size
             )
 
-            // Quick Actions
-            QuickActions(
-                onFavoritesClick = onFavoritesClick,
-                onHistoryClick = { },
-                onDownloadsClick = { }
-            )
+            // Favorites Section with Tabs
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column {
+                    // Header with Tabs
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "我的收藏",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
 
-            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        // Tabs
+                        Row {
+                            FilterChip(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 },
+                                label = { Text("视频 ${favoriteVideos.size}") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.VideoLibrary,
+                                        null,
+                                        Modifier.size(18.dp)
+                                    )
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            FilterChip(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 },
+                                label = { Text("图片 ${favoriteImages.size}") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Image,
+                                        null,
+                                        Modifier.size(18.dp)
+                                    )
+                                }
+                            )
+                        }
+                    }
 
-            // Recent Videos Section
-            Text(
-                text = "最近观看",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            if (uiState.videos.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("暂无观看记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    items(uiState.videos.take(6)) { video ->
-                        RecentVideoThumbnail(video = video)
+                    // Content
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp)
+                    ) {
+                        when (selectedTab) {
+                            0 -> FavoriteVideosGrid(
+                                videos = favoriteVideos,
+                                onVideoClick = { navController.navigate("video/$it") },
+                                onUnfavorite = { videoViewModel.toggleFavorite(it, false) }
+                            )
+                            1 -> FavoriteImagesGrid(
+                                images = favoriteImages,
+                                onImageClick = { navController.navigate("image/$it") },
+                                onUnfavorite = { imageViewModel.toggleFavorite(it, false) }
+                            )
+                        }
                     }
                 }
             }
@@ -106,170 +147,172 @@ fun ProfileScreen(
 }
 
 @Composable
-fun UserInfoCard() {
+fun StatsRow(
+    videoCount: Int,
+    imageCount: Int,
+    favoriteVideoCount: Int,
+    favoriteImageCount: Int
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            // Avatar
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(80.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "头像",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Username
-            Text(
-                text = "用户名",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+            StatItem(
+                icon = Icons.Outlined.VideoLibrary,
+                count = videoCount.toString(),
+                label = "视频"
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // User ID
-            Text(
-                text = "ID: 123456789",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            StatItem(
+                icon = Icons.Outlined.Image,
+                count = imageCount.toString(),
+                label = "图片"
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Bio
-            Text(
-                text = "这个人很懒，什么都没有写~",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            StatItem(
+                icon = Icons.Default.Favorite,
+                count = (favoriteVideoCount + favoriteImageCount).toString(),
+                label = "收藏"
             )
         }
     }
 }
 
 @Composable
-fun StatsRow(videoCount: Int, favoriteCount: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        StatItem("0", "获赞")
-        StatItem(videoCount.toString(), "作品")
-        StatItem(favoriteCount.toString(), "收藏")
-    }
-}
-
-@Composable
-fun StatItem(count: String, label: String) {
+fun StatItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    count: String,
+    label: String
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(32.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = count,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
-fun QuickActions(
-    onFavoritesClick: () -> Unit,
-    onHistoryClick: () -> Unit,
-    onDownloadsClick: () -> Unit
+fun FavoriteVideosGrid(
+    videos: List<Video>,
+    onVideoClick: (String) -> Unit,
+    onUnfavorite: (String) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        QuickActionItem(
-            icon = Icons.Outlined.FavoriteBorder,
-            label = "我的收藏",
-            onClick = onFavoritesClick
-        )
-        QuickActionItem(
-            icon = Icons.Outlined.History,
-            label = "观看历史",
-            onClick = onHistoryClick
-        )
-        QuickActionItem(
-            icon = Icons.Outlined.Download,
-            label = "离线缓存",
-            onClick = onDownloadsClick
-        )
-    }
-}
-
-@Composable
-fun QuickActionItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier.size(56.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
-
-@Composable
-fun RecentVideoThumbnail(video: Video) {
-    Box(
-        modifier = Modifier
-            .aspectRatio(3f / 4f)
-            .padding(2.dp)
-    ) {
-        AsyncImage(
-            model = video.thumbnailUrl,
-            contentDescription = video.title,
+    if (videos.isEmpty()) {
+        Box(
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Text("暂无收藏的视频", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(100.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(videos, key = { it.id }) { video ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(3f / 4f)
+                        .padding(4.dp)
+                        .clickable { onVideoClick(video.id) },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AsyncImage(
+                            model = video.thumbnailUrl,
+                            contentDescription = video.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        IconButton(
+                            onClick = { onUnfavorite(video.id) },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "取消收藏",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FavoriteImagesGrid(
+    images: List<Image>,
+    onImageClick: (String) -> Unit,
+    onUnfavorite: (String) -> Unit
+) {
+    if (images.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("暂无收藏的图片", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(100.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(images, key = { it.id }) { image ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .padding(4.dp)
+                        .clickable { onImageClick(image.id) },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AsyncImage(
+                            model = image.thumbnailUrl ?: image.url,
+                            contentDescription = image.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        IconButton(
+                            onClick = { onUnfavorite(image.id) },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "取消收藏",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
