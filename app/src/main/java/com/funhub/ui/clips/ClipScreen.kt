@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -160,7 +161,7 @@ fun ClipContent(
             valueRange = 0f..(uiState.videoDuration ?: 0f),
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         // End Time Slider
         Text(
             text = "结束时间: ${formatDuration(uiState.endTime.toLong())}",
@@ -172,7 +173,7 @@ fun ClipContent(
             valueRange = uiState.startTime..(uiState.videoDuration ?: 0f),
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         // Selected Duration
         Text(
             text = "选中时长: ${formatDuration((uiState.endTime - uiState.startTime).toLong())}",
@@ -284,8 +285,8 @@ fun ClipResultView(
     }
 }
 
-private fun formatDuration(durationMs: Long): String {
-    val seconds = durationMs / 1000
+private fun formatDuration(durationMs: Number): String {
+    val seconds = durationMs.toLong() / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
     return if (hours > 0) {

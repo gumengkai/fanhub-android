@@ -90,7 +90,7 @@ class SearchViewModel @Inject constructor(
             } else {
                 allVideos.filter { video ->
                     video.title.contains(query, ignoreCase = true) ||
-                    video.description.contains(query, ignoreCase = true) ||
+                    video.description?.contains(query, ignoreCase = true) == true ||
                     video.creatorName.contains(query, ignoreCase = true)
                 }
             }

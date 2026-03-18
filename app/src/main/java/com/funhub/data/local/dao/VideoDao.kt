@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface VideoDao {
     
     @Query("SELECT * FROM videos ORDER BY createdAt DESC")
-    fun getAllVideos(): Flow<List<VideoEntity>>
+    suspend fun getAllVideos(): List<VideoEntity>
     
     @Query("SELECT * FROM videos WHERE isFavorite = 1 ORDER BY createdAt DESC")
-    fun getFavoriteVideos(): Flow<List<VideoEntity>>
+    suspend fun getFavoriteVideos(): List<VideoEntity>
     
     @Query("SELECT * FROM videos WHERE id = :id")
     suspend fun getVideoById(id: String): VideoEntity?

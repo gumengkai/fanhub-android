@@ -14,7 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Server
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -62,7 +62,7 @@ fun SettingsScreen(
         // Server Settings
         SettingsSection(
             title = "服务器设置",
-            icon = Icons.Default.Server
+            icon = Icons.Default.Settings
         ) {
             ServerSettings(
                 serverUrl = settings!!.serverAddress,

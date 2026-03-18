@@ -27,7 +27,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Server
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -171,7 +171,7 @@ fun EnhancedServerSettingsCard(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Server,
+                        imageVector = Icons.Default.Settings,
                         contentDescription = null,
                         modifier = Modifier.padding(8.dp),
                         tint = MaterialTheme.colorScheme.primary

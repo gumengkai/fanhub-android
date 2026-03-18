@@ -36,7 +36,7 @@ class VideoRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             // Return cached data on network error
             val cachedVideos = videoDao.getAllVideos()
-            Result.Success(cachedVideos.map { it.toDomainModel() })
+            Result.Success(cachedVideos.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) })
         } catch (e: Exception) {
             Result.Error(e, e.message ?: "Unknown error")
         }
@@ -47,7 +47,7 @@ class VideoRepositoryImpl @Inject constructor(
             // Try to get from cache first
             val cached = videoDao.getVideoById(id)
             if (cached != null) {
-                Result.Success(cached.toDomainModel())
+                Result.Success(cached.toDomainModel(serverAddressProvider.getBaseUrl()))
             } else {
                 Result.Error(Exception("Video not found"), "Video not found")
             }
@@ -56,9 +56,9 @@ class VideoRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getFavoriteVideos(): Flow<List<Video>> {
-        return videoDao.getFavoriteVideos().map { entities ->
-            entities.map { it.toDomainModel() }
+    override suspend fun getFavoriteVideos(): List<Video> {
+        return videoDao.getFavoriteVideos().map { 
+            it.toDomainModel(serverAddressProvider.getBaseUrl()) 
         }
     }
 
@@ -153,12 +153,12 @@ class VideoRepositoryImpl @Inject constructor(
         )
     }
 
-    private fun VideoEntity.toDomainModel(): Video {
+    private fun VideoEntity.toDomainModel(baseUrl: String): Video {
         return Video(
             id = id,
             title = title,
             description = description,
-            thumbnailUrl = thumbnailUrl,
+            thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
             streamUrl = streamUrl,
             duration = duration,
             fileSize = fileSize,
@@ -168,6 +168,4 @@ class VideoRepositoryImpl @Inject constructor(
     }
 }
 
-interface ServerAddressProvider {
-    fun getBaseUrl(): String
-}
+
