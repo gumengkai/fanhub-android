@@ -26,8 +26,7 @@ import com.funhub.ui.theme.BiliPink
 fun BiliBottomNavigation(
     items: List<BiliNavItem>,
     selectedIndex: Int,
-    onItemSelected: (Int) -> Unit,
-    onAddClick: () -> Unit
+    onItemSelected: (Int) -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -43,16 +42,11 @@ fun BiliBottomNavigation(
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEachIndexed { index, item ->
-                if (index == 2) {
-                    // Center Add Button
-                    BiliAddButton(onClick = onAddClick)
-                } else {
-                    BiliNavItem(
-                        item = item,
-                        isSelected = selectedIndex == index,
-                        onClick = { onItemSelected(index) }
-                    )
-                }
+                BiliNavItem(
+                    item = item,
+                    isSelected = selectedIndex == index,
+                    onClick = { onItemSelected(index) }
+                )
             }
         }
     }

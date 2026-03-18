@@ -77,11 +77,6 @@ fun FunHubApp() {
             unselectedIcon = Icons.Outlined.VideoLibrary
         ),
         BiliNavItem(
-            label = "添加",
-            selectedIcon = Icons.Filled.Add,
-            unselectedIcon = Icons.Filled.Add
-        ),
-        BiliNavItem(
             label = "图片库",
             selectedIcon = Icons.Filled.Image,
             unselectedIcon = Icons.Outlined.Image
@@ -97,8 +92,8 @@ fun FunHubApp() {
     val selectedIndex = when (currentRoute) {
         BottomNavItem.ShortVideo.route -> 0
         BottomNavItem.VideoLibrary.route -> 1
-        BottomNavItem.ImageLibrary.route -> 3
-        BottomNavItem.Profile.route -> 4
+        BottomNavItem.ImageLibrary.route -> 2
+        BottomNavItem.Profile.route -> 3
         else -> 0
     }
 
@@ -112,8 +107,8 @@ fun FunHubApp() {
                         val route = when (index) {
                             0 -> BottomNavItem.ShortVideo.route
                             1 -> BottomNavItem.VideoLibrary.route
-                            3 -> BottomNavItem.ImageLibrary.route
-                            4 -> BottomNavItem.Profile.route
+                            2 -> BottomNavItem.ImageLibrary.route
+                            3 -> BottomNavItem.Profile.route
                             else -> BottomNavItem.ShortVideo.route
                         }
                         navController.navigate(route) {
@@ -123,9 +118,6 @@ fun FunHubApp() {
                             launchSingleTop = true
                             restoreState = true
                         }
-                    },
-                    onAddClick = {
-                        // TODO: Open upload dialog
                     }
                 )
             }
