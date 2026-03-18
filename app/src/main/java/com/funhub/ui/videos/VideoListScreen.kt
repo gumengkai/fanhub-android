@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,6 +47,7 @@ import com.funhub.ui.components.LoadingIndicator
 @Composable
 fun VideoListScreen(
     onVideoClick: (String) -> Unit,
+    onSearchClick: (() -> Unit)? = null,
     viewModel: VideoListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,6 +57,14 @@ fun VideoListScreen(
             TopAppBar(
                 title = { Text("视频库") },
                 actions = {
+                    if (onSearchClick != null) {
+                        IconButton(onClick = onSearchClick) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "搜索"
+                            )
+                        }
+                    }
                     IconButton(onClick = viewModel::toggleViewMode) {
                         Icon(
                             imageVector = if (uiState.isGridView) 
