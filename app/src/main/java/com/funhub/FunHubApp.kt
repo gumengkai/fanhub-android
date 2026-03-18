@@ -29,7 +29,7 @@ import androidx.compose.material3.Text
 import com.funhub.ui.clips.ClipScreen
 import com.funhub.ui.components.BiliBottomNavigation
 import com.funhub.ui.components.BiliNavItem
-import com.funhub.ui.debug.DebugLogScreen
+import com.funhub.ui.debug.SimpleDebugScreen
 import com.funhub.ui.images.ImageListScreen
 import com.funhub.ui.profile.ProfileScreen
 import com.funhub.ui.search.SearchScreen
@@ -224,7 +224,7 @@ fun FunHubApp() {
             
             // Debug Log
             composable("debug_log") {
-                DebugLogScreen(
+                SimpleDebugScreen(
                     onNavigateBack = { navController.navigateUp() }
                 )
             }

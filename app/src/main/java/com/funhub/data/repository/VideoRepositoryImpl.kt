@@ -8,7 +8,7 @@ import com.funhub.domain.model.Result
 import com.funhub.domain.model.Video
 import com.funhub.domain.model.VideoClipInfo
 import com.funhub.domain.repository.VideoRepository
-import com.funhub.ui.debug.AppLog
+import com.funhub.ui.debug.SimpleLog
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -27,42 +27,42 @@ class VideoRepositoryImpl @Inject constructor(
 
     override suspend fun getVideos(): Result<List<Video>> {
         return try {
-            AppLog.d(TAG, "Getting videos from API...")
+            SimpleLog.d(TAG, "Getting videos from API...")
             val baseUrl = serverAddressProvider.getBaseUrl()
-            AppLog.d(TAG, "Base URL: $baseUrl")
+            SimpleLog.d(TAG, "Base URL: $baseUrl")
             
             val response = api.getVideos()
-            AppLog.d(TAG, "Response code: ${response.code()}")
+            SimpleLog.d(TAG, "Response code: ${response.code()}")
             
             if (response.isSuccessful) {
                 val body = response.body()
-                AppLog.d(TAG, "Response body null: ${body == null}")
+                SimpleLog.d(TAG, "Response body null: ${body == null}")
                 
                 if (body == null) {
-                    AppLog.e(TAG, "Response body is null")
+                    SimpleLog.e(TAG, "Response body is null")
                     return Result.Error(Exception("Empty response"), "Empty response")
                 }
                 
-                AppLog.d(TAG, "Items count: ${body.items.size}")
-                AppLog.d(TAG, "Total from API: ${body.total}")
+                SimpleLog.d(TAG, "Items count: ${body.items.size}")
+                SimpleLog.d(TAG, "Total from API: ${body.total}")
                 
                 val videos = body.items.mapIndexed { index, dto ->
-                    AppLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
+                    SimpleLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
                     dto.toDomainModel(baseUrl)
                 }
                 
-                AppLog.d(TAG, "Converted ${videos.size} videos successfully")
+                SimpleLog.d(TAG, "Converted ${videos.size} videos successfully")
                 Result.Success(videos)
             } else {
                 val errorBody = response.errorBody()?.string()
-                AppLog.e(TAG, "API error: ${response.code()}, body: $errorBody")
+                SimpleLog.e(TAG, "API error: ${response.code()}, body: $errorBody")
                 Result.Error(HttpException(response), "Failed to load videos: ${response.code()}")
             }
         } catch (e: IOException) {
-            AppLog.e(TAG, "Network error: ${e.message}")
+            SimpleLog.e(TAG, "Network error: ${e.message}")
             Result.Error(e, "Network error: ${e.message}")
         } catch (e: Exception) {
-            AppLog.e(TAG, "Unknown error: ${e.message}")
+            SimpleLog.e(TAG, "Unknown error: ${e.message}")
             Result.Error(e, e.message ?: "Unknown error")
         }
     }
