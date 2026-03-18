@@ -1,6 +1,7 @@
 package com.funhub
 
 sealed class Screen(val route: String) {
+    data object Home : Screen("home")
     data object Videos : Screen("videos")
     data object VideoPlayer : Screen("video/{videoId}") {
         fun createRoute(videoId: String) = "video/$videoId"
