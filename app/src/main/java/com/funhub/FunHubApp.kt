@@ -24,6 +24,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import com.funhub.ui.clips.ClipScreen
 import com.funhub.ui.components.BiliBottomNavigation
 import com.funhub.ui.components.BiliNavItem
@@ -229,7 +231,7 @@ fun FunHubApp() {
 
             // Favorites - 从个人中心跳转
             composable("favorites") {
-                // TODO: Create FavoritesScreen
+                Text("收藏页面开发中...", modifier = Modifier.fillMaxSize())
             }
 
             // Search
