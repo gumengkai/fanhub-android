@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.funhub.data.local.database.AppDatabase
 import com.funhub.data.remote.api.FunHubApi
 import com.funhub.data.remote.interceptor.AuthInterceptor
+import com.funhub.data.remote.interceptor.DynamicUrlInterceptor
 import com.funhub.data.repository.ServerAddressProvider
 import com.funhub.data.repository.ServerAddressProviderImpl
 import com.funhub.domain.repository.ImageRepository
@@ -83,8 +84,9 @@ object NetworkModule {
     
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(serverAddressProvider: ServerAddressProvider): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(DynamicUrlInterceptor(serverAddressProvider))
             .addInterceptor(AuthInterceptor())
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
@@ -95,8 +97,9 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        // Use a placeholder base URL - actual URL will be set by DynamicUrlInterceptor
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.100:5000/")
+            .baseUrl("http://localhost:5000/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

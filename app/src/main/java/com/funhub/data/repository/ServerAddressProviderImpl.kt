@@ -23,7 +23,7 @@ class ServerAddressProviderImpl @Inject constructor(
 
     companion object {
         private val SERVER_ADDRESS = stringPreferencesKey("server_address")
-        private const val DEFAULT_SERVER = "http://192.168.1.100:5000"
+        private const val DEFAULT_SERVER = "http://192.168.31.40:11303"
     }
 
     override fun getBaseUrl(): String {
