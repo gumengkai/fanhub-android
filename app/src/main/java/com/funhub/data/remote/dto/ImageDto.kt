@@ -7,18 +7,18 @@ import com.google.gson.annotations.SerializedName
  * Backend uses Int for id
  */
 data class ImageDto(
-    @SerializedName("id") val id: Int,
-    @SerializedName("title") val title: String,
-    @SerializedName("url") val url: String,
-    @SerializedName("thumbnail_url") val thumbnailUrl: String?,
-    @SerializedName("width") val width: Int,
-    @SerializedName("height") val height: Int,
-    @SerializedName("file_size") val fileSize: Long,
-    @SerializedName("created_at") val createdAt: String?, // ISO format from backend
-    @SerializedName("is_favorite") val isFavorite: Boolean = false,
+    @SerializedName("id") val id: Int? = null,
+    @SerializedName("title") val title: String? = null,
+    @SerializedName("url") val url: String? = null,
+    @SerializedName("thumbnail_url") val thumbnailUrl: String? = null,
+    @SerializedName("width") val width: Int? = null,
+    @SerializedName("height") val height: Int? = null,
+    @SerializedName("file_size") val fileSize: Long? = null,
+    @SerializedName("created_at") val createdAt: String? = null,
+    @SerializedName("is_favorite") val isFavorite: Boolean? = false,
     @SerializedName("tags") val tags: List<TagDto>? = null
 ) {
-    fun getStringId(): String = id.toString()
+    fun getStringId(): String = id?.toString() ?: ""
 }
 
 /**

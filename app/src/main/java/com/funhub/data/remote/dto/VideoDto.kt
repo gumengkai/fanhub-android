@@ -7,18 +7,18 @@ import com.google.gson.annotations.SerializedName
  * Backend uses Int for id, but we convert to String for consistency
  */
 data class VideoDto(
-    @SerializedName("id") val id: Int,
-    @SerializedName("title") val title: String,
-    @SerializedName("description") val description: String?,
-    @SerializedName("thumbnail_url") val thumbnailUrl: String?,
-    @SerializedName("duration") val duration: Int,
-    @SerializedName("file_size") val fileSize: Long,
-    @SerializedName("created_at") val createdAt: String?, // ISO format from backend
-    @SerializedName("is_favorite") val isFavorite: Boolean = false,
-    @SerializedName("view_count") val viewCount: Int = 0,
+    @SerializedName("id") val id: Int? = null,
+    @SerializedName("title") val title: String? = null,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("thumbnail_url") val thumbnailUrl: String? = null,
+    @SerializedName("duration") val duration: Int? = null,
+    @SerializedName("file_size") val fileSize: Long? = null,
+    @SerializedName("created_at") val createdAt: String? = null,
+    @SerializedName("is_favorite") val isFavorite: Boolean? = false,
+    @SerializedName("view_count") val viewCount: Int? = 0,
     @SerializedName("tags") val tags: List<TagDto>? = null
 ) {
-    fun getStringId(): String = id.toString()
+    fun getStringId(): String = id?.toString() ?: ""
 }
 
 /**

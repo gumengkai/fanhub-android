@@ -63,7 +63,7 @@ class VideoRepositoryImpl @Inject constructor(
                 SimpleLog.d(TAG, "Total from API: ${body.total}")
                 
                 val videos = body.items.mapIndexed { index, dto ->
-                    SimpleLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
+                    SimpleLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title?.take(20)}")
                     convertVideoDtoToDomain(dto, baseUrl)
                 }
                 
@@ -197,7 +197,8 @@ class VideoRepositoryImpl @Inject constructor(
         val fullThumbnailUrl = dto.thumbnailUrl?.let { 
             if (it.startsWith("http")) it else "$baseUrl$it" 
         }
-        val fullStreamUrl = "$baseUrl/api/videos/${dto.id}/stream"
+        val videoId = dto.id?.toString() ?: ""
+        val fullStreamUrl = "$baseUrl/api/videos/$videoId/stream"
         
         SimpleLog.d(TAG, "convertVideoDtoToDomain: id=${dto.id}")
         SimpleLog.d(TAG, "  baseUrl=$baseUrl")
@@ -207,15 +208,15 @@ class VideoRepositoryImpl @Inject constructor(
         
         return Video(
             id = dto.getStringId(),
-            title = dto.title,
+            title = dto.title ?: "",
             description = dto.description,
             thumbnailUrl = fullThumbnailUrl,
             streamUrl = fullStreamUrl,
-            duration = dto.duration.toLong(),
-            fileSize = dto.fileSize,
+            duration = dto.duration?.toLong() ?: 0,
+            fileSize = dto.fileSize ?: 0,
             createdAt = parseDateToTimestamp(dto.createdAt),
-            isFavorite = dto.isFavorite,
-            viewCount = dto.viewCount,
+            isFavorite = dto.isFavorite ?: false,
+            viewCount = dto.viewCount ?: 0,
             creatorName = ""
         )
     }

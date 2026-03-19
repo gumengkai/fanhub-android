@@ -119,28 +119,30 @@ class ImageRepositoryImpl @Inject constructor(
     }
 
     private fun convertImageDtoToDomain(dto: ImageDto, baseUrl: String): Image {
-        val fullUrl = if (dto.url.startsWith("http")) dto.url else "$baseUrl${dto.url}"
+        // Handle null url
+        val url = dto.url ?: ""
+        val fullUrl = if (url.startsWith("http")) url else "$baseUrl$url"
         val fullThumbnailUrl = dto.thumbnailUrl?.let { 
             if (it.startsWith("http")) it else "$baseUrl$it" 
         }
         
         android.util.Log.d("ImageRepository", "convertImageDtoToDomain: id=${dto.id}")
         android.util.Log.d("ImageRepository", "  baseUrl=$baseUrl")
-        android.util.Log.d("ImageRepository", "  url=${dto.url}")
+        android.util.Log.d("ImageRepository", "  url=$url")
         android.util.Log.d("ImageRepository", "  fullUrl=$fullUrl")
         android.util.Log.d("ImageRepository", "  thumbnailUrl=${dto.thumbnailUrl}")
         android.util.Log.d("ImageRepository", "  fullThumbnailUrl=$fullThumbnailUrl")
         
         return Image(
             id = dto.getStringId(),
-            title = dto.title,
+            title = dto.title ?: "",
             url = fullUrl,
             thumbnailUrl = fullThumbnailUrl,
-            width = dto.width,
-            height = dto.height,
-            fileSize = dto.fileSize,
+            width = dto.width ?: 0,
+            height = dto.height ?: 0,
+            fileSize = dto.fileSize ?: 0,
             createdAt = parseDateToTimestamp(dto.createdAt),
-            isFavorite = dto.isFavorite
+            isFavorite = dto.isFavorite ?: false
         )
     }
 
