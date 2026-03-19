@@ -4,9 +4,16 @@ import com.funhub.domain.model.Result
 import com.funhub.domain.model.Video
 import com.funhub.domain.model.VideoClipInfo
 
-
 interface VideoRepository {
-    suspend fun getVideos(): Result<List<Video>>
+    suspend fun getVideos(
+        page: Int = 1,
+        perPage: Int = 20,
+        search: String? = null,
+        tagId: Int? = null,
+        favorite: Boolean? = null,
+        sortBy: String = "created_at",
+        order: String = "desc"
+    ): Result<List<Video>>
     suspend fun getVideoById(id: String): Result<Video>
     suspend fun getFavoriteVideos(): List<Video>
     suspend fun toggleFavorite(videoId: String, isFavorite: Boolean)

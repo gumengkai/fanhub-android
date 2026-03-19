@@ -25,13 +25,29 @@ class VideoRepositoryImpl @Inject constructor(
         private const val TAG = "VideoRepository"
     }
 
-    override suspend fun getVideos(): Result<List<Video>> {
+    override suspend fun getVideos(
+        page: Int,
+        perPage: Int,
+        search: String?,
+        tagId: Int?,
+        favorite: Boolean?,
+        sortBy: String,
+        order: String
+    ): Result<List<Video>> {
         return try {
-            SimpleLog.d(TAG, "Getting videos from API...")
+            SimpleLog.d(TAG, "Getting videos from API... page=$page, perPage=$perPage")
             val baseUrl = serverAddressProvider.getBaseUrl()
             SimpleLog.d(TAG, "Base URL: $baseUrl")
             
-            val response = api.getVideos()
+            val response = api.getVideos(
+                page = page,
+                perPage = perPage,
+                search = search,
+                tagId = tagId,
+                favorite = favorite,
+                sortBy = sortBy,
+                order = order
+            )
             SimpleLog.d(TAG, "Response code: ${response.code()}")
             
             if (response.isSuccessful) {

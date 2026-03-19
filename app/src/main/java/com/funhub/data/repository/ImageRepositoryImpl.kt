@@ -22,11 +22,25 @@ class ImageRepositoryImpl @Inject constructor(
     private val serverAddressProvider: ServerAddressProvider
 ) : ImageRepository {
 
-    override suspend fun getImages(): Result<List<Image>> {
+    override suspend fun getImages(
+        page: Int,
+        perPage: Int,
+        search: String?,
+        tagId: Int?,
+        favorite: Boolean?
+    ): Result<List<Image>> {
         return try {
-            val response = api.getImages()
+            val response = api.getImages(
+                page = page,
+                perPage = perPage,
+                search = search,
+                tagId = tagId,
+                favorite = favorite
+            )
             if (response.isSuccessful) {
-                val images = response.body()?.items?.map { it.toDomainModel(serverAddressProvider.getBaseUrl()) } ?: emptyList()
+                val images = response.body()?.items?.map { 
+                    it.toDomainModel(serverAddressProvider.getBaseUrl()) 
+                } ?: emptyList()
                 // Cache to local database
                 imageDao.insertImages(images.map { it.toEntity() })
                 Result.Success(images)
