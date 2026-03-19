@@ -99,10 +99,10 @@ class VideoListViewModel @Inject constructor(
         }
     }
 
-    fun loadMore() {
-        if (_uiState.value.isLoadingMore || !_uiState.value.hasMorePages) return
-        _uiState.update { it.copy(currentPage = it.currentPage + 1) }
-        loadVideos()
+    fun goToPage(page: Int) {
+        if (page < 1 || _uiState.value.isLoading) return
+        _uiState.update { it.copy(currentPage = page) }
+        loadVideos(refresh = true)
     }
 
     fun refresh() {

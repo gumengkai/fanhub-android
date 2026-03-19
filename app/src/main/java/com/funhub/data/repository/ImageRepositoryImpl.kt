@@ -87,8 +87,8 @@ class ImageRepositoryImpl @Inject constructor(
         return Image(
             id = getStringId(),
             title = title,
-            url = baseUrl + url,
-            thumbnailUrl = thumbnailUrl?.let { baseUrl + it },
+            url = if (url.startsWith("http")) url else "$baseUrl$url",
+            thumbnailUrl = thumbnailUrl?.let { if (it.startsWith("http")) it else "$baseUrl$it" },
             width = width,
             height = height,
             fileSize = fileSize,
