@@ -5,12 +5,14 @@ import com.funhub.data.remote.dto.ClipResponse
 import com.funhub.data.remote.dto.CreateTagRequest
 import com.funhub.data.remote.dto.FFmpegCheckResponse
 import com.funhub.data.remote.dto.HealthResponse
+import com.funhub.data.remote.dto.ImageDto
 import com.funhub.data.remote.dto.ImageListResponse
 import com.funhub.data.remote.dto.TagDto
 import com.funhub.data.remote.dto.UpdateImageRequest
 import com.funhub.data.remote.dto.UpdateTagRequest
 import com.funhub.data.remote.dto.UpdateVideoRequest
 import com.funhub.data.remote.dto.VideoClipInfoDto
+import com.funhub.data.remote.dto.VideoDto
 import com.funhub.data.remote.dto.VideoListResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -108,30 +110,3 @@ interface FunHubApi {
     @GET("/api/clips/check")
     suspend fun checkFFmpeg(): Response<FFmpegCheckResponse>
 }
-
-data class VideoDto(
-    val id: String,
-    val title: String,
-    val description: String?,
-    val thumbnailUrl: String?,
-    val streamUrl: String,
-    val duration: Long,
-    val fileSize: Long,
-    val createdAt: Long,
-    val isFavorite: Boolean,
-    val viewCount: Int,
-    val tags: List<TagDto>?
-)
-
-data class ImageDto(
-    val id: String,
-    val title: String,
-    val url: String,
-    val thumbnailUrl: String?,
-    val width: Int,
-    val height: Int,
-    val fileSize: Long,
-    val createdAt: Long,
-    val isFavorite: Boolean,
-    val tags: List<TagDto>?
-)

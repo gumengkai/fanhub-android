@@ -64,7 +64,7 @@ class VideoRepositoryImpl @Inject constructor(
                 
                 val videos = body.items.mapIndexed { index, dto ->
                     SimpleLog.d(TAG, "Converting video $index: id=${dto.id}, title=${dto.title.take(20)}")
-                    dto.toDomainModel(baseUrl)
+                    convertVideoDtoToDomain(dto, baseUrl)
                 }
                 
                 SimpleLog.d(TAG, "Converted ${videos.size} videos successfully")
@@ -85,14 +85,49 @@ class VideoRepositoryImpl @Inject constructor(
 
     override suspend fun getVideoById(id: String): Result<Video> {
         return try {
-            val cached = videoDao.getVideoById(id)
-            if (cached != null) {
-                Result.Success(cached.toDomainModel(serverAddressProvider.getBaseUrl()))
+            // Try to get from API first
+            val response = api.getVideo(id)
+            if (response.isSuccessful) {
+                val videoDto = response.body()
+                if (videoDto != null) {
+                    val video = convertVideoDtoToDomain(videoDto, serverAddressProvider.getBaseUrl())
+                    // Cache to local database - inline conversion
+                    videoDao.insertVideo(VideoEntity(
+                        id = video.id,
+                        title = video.title,
+                        description = video.description,
+                        thumbnailUrl = video.thumbnailUrl,
+                        streamUrl = video.streamUrl,
+                        duration = video.duration,
+                        fileSize = video.fileSize,
+                        createdAt = video.createdAt,
+                        isFavorite = video.isFavorite
+                    ))
+                    Result.Success(video)
+                } else {
+                    Result.Error(Exception("Empty response"), "Empty response")
+                }
             } else {
-                Result.Error(Exception("Video not found"), "Video not found")
+                // Fallback to cache
+                val cached = videoDao.getVideoById(id)
+                if (cached != null) {
+                    Result.Success(cached.toDomainModel(serverAddressProvider.getBaseUrl()))
+                } else {
+                    Result.Error(HttpException(response), "Video not found")
+                }
             }
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            // Fallback to cache on error
+            try {
+                val cached = videoDao.getVideoById(id)
+                if (cached != null) {
+                    Result.Success(cached.toDomainModel(serverAddressProvider.getBaseUrl()))
+                } else {
+                    Result.Error(e, e.message ?: "Unknown error")
+                }
+            } catch (cacheError: Exception) {
+                Result.Error(e, e.message ?: "Unknown error")
+            }
         }
     }
 
@@ -158,18 +193,29 @@ class VideoRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun VideoDto.toDomainModel(baseUrl: String): Video {
+    private fun convertVideoDtoToDomain(dto: VideoDto, baseUrl: String): Video {
+        val fullThumbnailUrl = dto.thumbnailUrl?.let { 
+            if (it.startsWith("http")) it else "$baseUrl$it" 
+        }
+        val fullStreamUrl = "$baseUrl/api/videos/${dto.id}/stream"
+        
+        SimpleLog.d(TAG, "convertVideoDtoToDomain: id=${dto.id}")
+        SimpleLog.d(TAG, "  baseUrl=$baseUrl")
+        SimpleLog.d(TAG, "  thumbnailUrl=${dto.thumbnailUrl}")
+        SimpleLog.d(TAG, "  fullThumbnailUrl=$fullThumbnailUrl")
+        SimpleLog.d(TAG, "  fullStreamUrl=$fullStreamUrl")
+        
         return Video(
-            id = getStringId(),
-            title = title,
-            description = description,
-            thumbnailUrl = thumbnailUrl?.let { if (it.startsWith("http")) it else "$baseUrl$it" },
-            streamUrl = "$baseUrl/api/videos/$id/stream",
-            duration = duration.toLong(),
-            fileSize = fileSize,
-            createdAt = parseDateToTimestamp(createdAt),
-            isFavorite = isFavorite,
-            viewCount = viewCount,
+            id = dto.getStringId(),
+            title = dto.title,
+            description = dto.description,
+            thumbnailUrl = fullThumbnailUrl,
+            streamUrl = fullStreamUrl,
+            duration = dto.duration.toLong(),
+            fileSize = dto.fileSize,
+            createdAt = parseDateToTimestamp(dto.createdAt),
+            isFavorite = dto.isFavorite,
+            viewCount = dto.viewCount,
             creatorName = ""
         )
     }

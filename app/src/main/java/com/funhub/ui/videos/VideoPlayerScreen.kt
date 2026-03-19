@@ -39,8 +39,10 @@ fun VideoPlayerScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    // Load video when screen opens
-    viewModel.loadVideo(videoId)
+    // Load video when screen opens (only once)
+    androidx.compose.runtime.LaunchedEffect(videoId) {
+        viewModel.loadVideo(videoId)
+    }
     
     Scaffold(
         topBar = {

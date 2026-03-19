@@ -39,7 +39,7 @@ class ImageRepositoryImpl @Inject constructor(
             )
             if (response.isSuccessful) {
                 val images = response.body()?.items?.map { 
-                    it.toDomainModel(serverAddressProvider.getBaseUrl()) 
+                    convertImageDtoToDomain(it, serverAddressProvider.getBaseUrl()) 
                 } ?: emptyList()
                 // Cache to local database
                 imageDao.insertImages(images.map { it.toEntity() })
@@ -62,14 +62,49 @@ class ImageRepositoryImpl @Inject constructor(
 
     override suspend fun getImageById(id: String): Result<Image> {
         return try {
-            val cached = imageDao.getImageById(id)
-            if (cached != null) {
-                Result.Success(cached.toDomainModel())
+            // Try to get from API first
+            val response = api.getImage(id)
+            if (response.isSuccessful) {
+                val imageDto = response.body()
+                if (imageDto != null) {
+                    val image = convertImageDtoToDomain(imageDto, serverAddressProvider.getBaseUrl())
+                    // Cache to local database - inline conversion
+                    imageDao.insertImage(ImageEntity(
+                        id = image.id,
+                        title = image.title,
+                        url = image.url,
+                        thumbnailUrl = image.thumbnailUrl,
+                        width = image.width,
+                        height = image.height,
+                        fileSize = image.fileSize,
+                        createdAt = image.createdAt,
+                        isFavorite = image.isFavorite
+                    ))
+                    Result.Success(image)
+                } else {
+                    Result.Error(Exception("Empty response"), "Empty response")
+                }
             } else {
-                Result.Error(Exception("Image not found"), "Image not found")
+                // Fallback to cache
+                val cached = imageDao.getImageById(id)
+                if (cached != null) {
+                    Result.Success(cached.toDomainModel())
+                } else {
+                    Result.Error(HttpException(response), "Image not found")
+                }
             }
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            // Fallback to cache on error
+            try {
+                val cached = imageDao.getImageById(id)
+                if (cached != null) {
+                    Result.Success(cached.toDomainModel())
+                } else {
+                    Result.Error(e, e.message ?: "Unknown error")
+                }
+            } catch (cacheError: Exception) {
+                Result.Error(e, e.message ?: "Unknown error")
+            }
         }
     }
 
@@ -83,17 +118,29 @@ class ImageRepositoryImpl @Inject constructor(
         imageDao.updateFavoriteStatus(imageId, isFavorite)
     }
 
-    private fun ImageDto.toDomainModel(baseUrl: String): Image {
+    private fun convertImageDtoToDomain(dto: ImageDto, baseUrl: String): Image {
+        val fullUrl = if (dto.url.startsWith("http")) dto.url else "$baseUrl${dto.url}"
+        val fullThumbnailUrl = dto.thumbnailUrl?.let { 
+            if (it.startsWith("http")) it else "$baseUrl$it" 
+        }
+        
+        android.util.Log.d("ImageRepository", "convertImageDtoToDomain: id=${dto.id}")
+        android.util.Log.d("ImageRepository", "  baseUrl=$baseUrl")
+        android.util.Log.d("ImageRepository", "  url=${dto.url}")
+        android.util.Log.d("ImageRepository", "  fullUrl=$fullUrl")
+        android.util.Log.d("ImageRepository", "  thumbnailUrl=${dto.thumbnailUrl}")
+        android.util.Log.d("ImageRepository", "  fullThumbnailUrl=$fullThumbnailUrl")
+        
         return Image(
-            id = getStringId(),
-            title = title,
-            url = if (url.startsWith("http")) url else "$baseUrl$url",
-            thumbnailUrl = thumbnailUrl?.let { if (it.startsWith("http")) it else "$baseUrl$it" },
-            width = width,
-            height = height,
-            fileSize = fileSize,
-            createdAt = parseDateToTimestamp(createdAt),
-            isFavorite = isFavorite
+            id = dto.getStringId(),
+            title = dto.title,
+            url = fullUrl,
+            thumbnailUrl = fullThumbnailUrl,
+            width = dto.width,
+            height = dto.height,
+            fileSize = dto.fileSize,
+            createdAt = parseDateToTimestamp(dto.createdAt),
+            isFavorite = dto.isFavorite
         )
     }
 
