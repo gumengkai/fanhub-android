@@ -31,7 +31,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private val THEME_MODE = stringPreferencesKey("theme_mode")
         private val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         
-        private const val DEFAULT_SERVER = "http://192.168.1.100:5000"
+        private const val DEFAULT_SERVER = "http://192.168.31.40:11303"
         
         // Static cache that can be accessed from ServerAddressProvider
         @Volatile

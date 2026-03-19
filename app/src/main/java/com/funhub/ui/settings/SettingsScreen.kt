@@ -26,6 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -133,14 +134,21 @@ fun ServerSettings(
     serverUrl: String,
     onServerUrlChange: (String) -> Unit
 ) {
-    var text by remember(serverUrl) { mutableStateOf(serverUrl) }
+    var text by remember { mutableStateOf(serverUrl) }
+    
+    // Update text when serverUrl changes from external source (e.g., initial load)
+    LaunchedEffect(serverUrl) {
+        if (text != serverUrl) {
+            text = serverUrl
+        }
+    }
     
     Column {
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
             label = { Text("服务器地址") },
-            placeholder = { Text("http://192.168.1.100:5000") },
+            placeholder = { Text("http://192.168.31.40:11303") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )

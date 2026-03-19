@@ -142,9 +142,16 @@ fun EnhancedServerSettingsCard(
     onServerUrlChange: (String) -> Unit,
     onTestConnection: suspend (String) -> Boolean
 ) {
-    var text by remember(serverUrl) { mutableStateOf(serverUrl) }
+    var text by remember { mutableStateOf(serverUrl) }
     var connectionState by remember { mutableStateOf<ConnectionState>(ConnectionState.Idle) }
     val scope = rememberCoroutineScope()
+    
+    // Update text when serverUrl changes from external source (e.g., initial load)
+    LaunchedEffect(serverUrl) {
+        if (text != serverUrl) {
+            text = serverUrl
+        }
+    }
     
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -198,7 +205,7 @@ fun EnhancedServerSettingsCard(
                     connectionState = ConnectionState.Idle
                 },
                 label = { Text("服务器地址") },
-                placeholder = { Text("http://192.168.1.100:5000") },
+                placeholder = { Text("http://192.168.31.40:11303") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 supportingText = {
